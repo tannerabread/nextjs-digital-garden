@@ -6,7 +6,7 @@ export default function Blog() {
 
   return (
     <main>
-      <h1>My Blog Homepage</h1>
+      <h1>All Blog Posts</h1>
       <ul>
         {posts.map(({ id, title, author, date }) => (
           <li key={id}>
