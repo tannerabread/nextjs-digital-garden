@@ -150,13 +150,12 @@ touch public/posts/test.md
 ```
 
 ```md
+<!-- public/posts/test.md -->
 ---
 title: Test Post
 date: May 8, 2023
 author: Test Author
 ---
-
-# Test Post Title
 
 Hello from markdown
 
