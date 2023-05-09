@@ -1,26 +1,31 @@
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { getSortedPostsData, PostData } from "@/lib/posts";
 
-export default function Post() {
-  const posts: PostData[] = getSortedPostsData();
+export default async function Post({ params }: { params: { id: string } }) {
+  const { id } = params;
+  const posts: PostData[] = await getSortedPostsData();
+  const { title, author, date, content } = posts.find(
+    (post) => post.id === id
+  ) as PostData;
 
   if (!posts) return <div>Loading...</div>;
 
-  return posts.map(({ id, title, author, date, content }) => (
-    <div key={id}>
-      <h1 className="post-title">{title}</h1>
-      <h3 className="post-byline">
+  return (
+    <div key={id} className="main">
+      <h1>{title}</h1>
+      <h3>
         {author} - {date}
       </h3>
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+      <div
+        className="simple-container"
+        dangerouslySetInnerHTML={{ __html: content }}
+      ></div>
     </div>
-  ));
+  );
 }
 
 // generate route segments
 export async function generateStaticParams() {
-  const posts = getSortedPostsData();
+  const posts: PostData[] = await getSortedPostsData();
 
   return posts.map((post) => ({
     id: post.id,

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { getSortedPostsData, PostData } from "@/lib/posts";
 
-export default function Blog() {
-  const posts: PostData[] = getSortedPostsData();
+export default async function Blog() {
+  const posts: PostData[] = await getSortedPostsData();
 
   return (
     <main>
