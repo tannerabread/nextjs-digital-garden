@@ -368,3 +368,5 @@ export default async function Blog() {
 In summary, a series of enhancements were made to the blog application. First, the react-markdown package was replaced with the remark library, resolving console rendering errors and streamlining the markdown conversion process. Next, a simple dark theme was applied to improve the overall aesthetics, and the project underwent a CSS refactoring process. Subsequently, syntax highlighting was introduced via remark-shiki and shiki to make code examples more visually appealing. Lastly, the dynamic page was adjusted to display the desired post based on the returned ID from generateStaticParams, and the PostData type was refined for better typing.
 
 These improvements have not only elevated the visual appearance and functionality of the blog application but have also laid a solid foundation for future development and feature additions.
+
+Check out the [current state of the project](https://bannon.cloud/blog) and the [repository](https://github.com/tannerabread/nextjs-digital-garden).
