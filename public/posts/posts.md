@@ -163,11 +163,17 @@ Hello from markdown
 test.code.block();
 ```
 
-Note that 3 additional backticks should be added at the end of that code block to end the block.
+Note that 3 additional backticks should be added at the end of the code block to close it.
 
-The [posts homepage](`http://localhost:3000/blog`) will display the title, date, and author of the copied post.
+Navigating to the [posts homepage](/blog) will now display the title, date, and author of the copied post.
 
-The application now requires a method to showcase individual posts and convert the markdown content into HTML. By implementing a dynamic route, a single function can be written to accommodate every post. Utilize `react-markdown` and `react-gfm` to transform the markdown into HTML while incorporating GitHub flavored markdown features. The `generateStaticParams` function can be employed to process a list of potential routes and generate dynamic segments during the build phase.
+The application requires a method to showcase individual posts and convert the markdown content into HTML. By implementing a dynamic route, a single function can be written to accommodate every post. Utilize `react-markdown` and `react-gfm` to transform the markdown into HTML while incorporating GitHub flavored markdown features. 
+
+```bash
+npm install react-markdown react-gfm
+```
+
+The `generateStaticParams` function can be employed to process a list of potential routes and generate dynamic segments during the build phase.
 
 ```ts
 // app/blog/[id]/page.tsx
