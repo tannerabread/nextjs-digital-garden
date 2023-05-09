@@ -95,10 +95,6 @@ pre {
   padding: 10px;
 }
 
-code {
-  font-weight: 700;
-}
-
 aside,
 [class *= "sidebar"],
 [id *= "sidebar"] {

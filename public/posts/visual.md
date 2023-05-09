@@ -88,10 +88,6 @@ pre {
   overflow-x: scroll;
   padding: 10px;
 }
-
-code {
-  font-weight: 700;
-}
 ```
 
 These modifications will apply basic styling at a global level. However, the dynamic blog page requires the application of additional styles from the CSS.
