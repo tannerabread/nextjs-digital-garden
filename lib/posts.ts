@@ -50,9 +50,17 @@ export async function getSortedPostsData(): Promise<PostData[]> {
   const allPostsData = await Promise.all(allPostsDataPromises);
 
   // sort posts by date
-  return allPostsData.sort((a: PostData, b: PostData) =>
-    a.date < b.date ? 1 : -1
-  );
+  return allPostsData
+    .sort((a: PostData, b: PostData) => {
+      return a.date < b.date ? 1 : -1;
+    })
+    .map((post: PostData) => {
+      const convertedDate: string = new Date(post.date).toLocaleString();
+      return {
+        ...post,
+        date: convertedDate,
+      };
+    });
 }
 
 async function convertContentToHtml(content: string): Promise<string> {

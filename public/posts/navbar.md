@@ -1,6 +1,6 @@
 ---
 title: Create a Fully Functional Next.js Digital Garden - Part 4 - NavBar
-date: May 9, 2023
+date: 2023-05-09T13:30:00-05:00
 author: Bannon Tanner
 ---
 

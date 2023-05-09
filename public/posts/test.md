@@ -1,6 +1,6 @@
 ---
 title: Test Post
-date: May 7, 2023
+date: 2023-05-07T10:30:00-05:00
 author: Test Author
 ---
 

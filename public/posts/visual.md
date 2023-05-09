@@ -1,6 +1,6 @@
 ---
 title: Create a Fully Functional Next.js Digital Garden - Part 3 - Syntax Highlighting and Basic Styling
-date: May 9, 2023
+date: 2023-05-09T10:00:00-05:00
 author: Bannon Tanner
 ---
 

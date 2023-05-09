@@ -1,6 +1,6 @@
 ---
 title: Create a Fully Functional Next.js Digital Garden - Part 2 - Markdown Blog
-date: May 8, 2023
+date: 2023-05-08T14:00:00-05:00
 author: Bannon Tanner
 ---
 

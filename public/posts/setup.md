@@ -1,6 +1,6 @@
 ---
 title: Create a Fully Functional Next.js Digital Garden - Part 1 - Initial Project Setup
-date: May 5, 2023
+date: 2023-05-05T12:30:00-05:00
 author: Bannon Tanner
 ---
 
