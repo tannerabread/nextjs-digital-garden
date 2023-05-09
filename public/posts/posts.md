@@ -142,11 +142,29 @@ export default function Blog() {
 
 ```
 
-To test this functionality, copy [this file]() into a newly created folder within the public directory.
+To test this functionality, create a new folder within the public directory and a file to hold some sample markdown.
 
 ```bash
 mkdir public/posts
+touch public/posts/test.md
 ```
+
+```md
+---
+title: Test Post
+date: May 8, 2023
+author: Test Author
+---
+
+# Test Post Title
+
+Hello from markdown
+
+```js
+test.code.block();
+```
+
+Note that 3 additional backticks should be added at the end of that code block to end the block.
 
 The [posts homepage](`http://localhost:3000/blog`) will display the title, date, and author of the copied post.
 
