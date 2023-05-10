@@ -76,6 +76,7 @@ hr {
 
 a[href] {
 	color: #1e8ad6;
+  text-decoration: none;
 }
 
 a[href]:hover {
@@ -84,6 +85,11 @@ a[href]:hover {
 
 img {
 	max-width: 100%;
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 0;
 }
 
 li {
