@@ -21,7 +21,7 @@ Additionally, the following code should be added to `.gitignore`:
 .env*
 ```
 
-Opting for GraphQL instead of REST will yield superior results from the API. The GraphQL request will be made with the fetch API.
+Opting for GraphQL will yield superior results over the REST API. To explore the GitHub GraphQL API, try the [Apollo GraphQL Sandbox](https://studio.apollographql.com/sandbox/explorer?) and insert the previously generated personal access token into the `Authorization` header as "Bearer <access_token>" using the endpoint "https://api.github.com/graphql".
 
 Upon completion, the portfolio page code should resemble the following:
 
