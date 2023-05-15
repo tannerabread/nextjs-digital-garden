@@ -36,7 +36,7 @@ Let's begin with the initial setup.
 
 To start, ensure Node.js and npm are installed on your computer. Verify by running the following commands:
 
-```bash
+```shell
 node -v
 # node version number
 
@@ -50,13 +50,13 @@ If they are not installed, download the latest version from the [Node.js website
 
 With Node.js installed, choose a directory to create your project in and use the built-in package runner, [Node Package Execute (NPX)](https://docs.npmjs.com/cli/v7/commands/npx), to run the `create-next-app` package without installing it locally:
 
-```bash
+```shell
 npx create-next-app digital-garden
 ```
 
 You will be prompted with project options. For this tutorial, select the following:
 
-```bash
+```shell
 ✔ Would you like to use TypeScript with this project? … Yes
 ✔ Would you like to use ESLint with this project? … Yes
 ✔ Would you like to use Tailwind CSS with this project? … No
@@ -67,7 +67,7 @@ You will be prompted with project options. For this tutorial, select the followi
 
 Once the setup is complete, navigate to the new directory and open the application in your favorite editor. For example, use [Visual Studio Code](https://code.visualstudio.com/) to open the editor directly from the terminal:
 
-```bash
+```shell
 cd digital-garden
 code .
 ```
@@ -77,7 +77,7 @@ code .
 Create a new GitHub repository and push the initial project. By default, Next.js initializes projects as git 
 repositories with the default branch named 'main'. Consequently, an initial commit should already be present.
 
-```bash
+```shell
 git remote add origin git@github.com:<username>/nextjs-digital-garden.git
 git push -u origin main
 ```
@@ -90,14 +90,14 @@ Click [here](https://vercel.com/signup) to sign up for a Vercel account. Choose 
 
 Install the Vercel CLI and log in to your account.
 
-```bash
+```shell
 npm install -g vercel
 vercel login
 ```
 
 Select `Continue with GitHub`, and the browser will automatically connect your account to the CLI. Now, deploy the project.
 
-```bash
+```shell
 vercel
 ```
 
@@ -109,7 +109,7 @@ Alternatively you can visit [your dashboard](https://vercel.com/dashboard) and s
 
 As we utilized the CLI for deploying our application, the connecction to the GitHub repository has not yet been established. Fortunately, the Vercel CLI offers a convenient command to link the two.
 
-```bash
+```shell
 vercel git connect
 ```
 

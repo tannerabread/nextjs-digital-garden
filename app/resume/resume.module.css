@@ -1,0 +1,75 @@
+.container {
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid #D8D8D8;
+}
+
+.center {
+  text-align: center;
+}
+
+.contact {
+  text-align: left;
+}
+
+.summary {
+  padding: 10px;
+}
+
+.skills {
+  border-bottom: 1px solid #D8D8D8;
+	border-top: 1px solid #D8D8D8;
+}
+
+.skillSection {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.skillSection li {
+  padding: 0 7px;
+}
+
+.category {
+  list-style-type: none !important;
+}
+
+.experience {
+  margin: 10px 0;
+  padding: 5px 0;
+}
+
+.experience ul {
+  width: 100%;
+  list-style-position: inside;
+}
+
+.experience h3 {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.jobCompany {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+.jobTitle {
+  font-style: italic;
+}
+
+.jobResponsibilities {
+  list-style-type: circle;
+  max-width: 100%;
+}
+
+.education, .certifications {
+  margin: 10px 0;
+  padding: 5px 0;
+}
