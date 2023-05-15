@@ -1,4 +1,5 @@
 import { getSortedPostsData, PostData } from "@/lib/posts";
+import { SocialShare } from "@/components/SocialShare";
 
 export default async function Post({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -19,6 +20,7 @@ export default async function Post({ params }: { params: { id: string } }) {
         className="simple-container"
         dangerouslySetInnerHTML={{ __html: content }}
       ></div>
+      <SocialShare url={`https://bannon.cloud/blog/${id}`} title={title} />
     </div>
   );
 }
