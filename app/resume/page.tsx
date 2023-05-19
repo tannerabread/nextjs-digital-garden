@@ -66,12 +66,12 @@ export default function Resume() {
       Company: "Amazon Web Services",
       Date: "August 2022 - April 2023",
       Title: "Developer Experience Engineer",
-      Description: "",
+      Description: "Led an indirect team of two other developer experience engineers to maintain and improve the AWS Amplify JS repository, directly contributing to lower issue counts, improved customer experience, and triaging issues.",
       Responsibilities: [
-        "Spearheaded cross-functional initiatives to enhance developer experience, reducing open GitHub issues for the Amplify JS repository by 36% through regular analysis of pain points, areas of improvement, and emerging trends.",
-        "Mentored and coached junior developer experienced engineers, resulting in a highly skilled and motivated team by providing guidance, support, and technical demonstrations.",
+        "Spearheaded cross-functional initiatives to enhance developer experience, reducing open GitHub issues for the Amplify JS repository by 36%.",
+        "Mentored and coached junior developer experienced engineers, resulting in one promotion to a senior position.",
         "Created and maintained comprehensive developer documentation, tutorials, and code samples, contributing to a 20% reduction in open documentation issues.",
-        "Collaborated with product and engineering teams to improve the developer experience of Amplify APIs, resulting in a 30% increase in adoption and usage of the library by effectively communicating the needs of the community between teams.",
+        "Collaborated with product and engineering teams to improve the developer experience of Amplify APIs, resulting in a 30% increase in adoption and usage of the library.",
         "Provided expert guidance to customers to define frontend web and mobile application architectures by collaborating with them and leveraging AWS services including Amazon Cognito and Amazon S3.",
       ],
     },
@@ -79,9 +79,9 @@ export default function Resume() {
       Company: "Perficient",
       Date: "February 2022 - August 2022",
       Title: "Technical Consultant",
-      Description: "",
+      Description: "Navigated multiple projects, from independently tackling backend challenges, to fulfilling frontend expectations with React/Next.js/Redux, while mentoring junior team members in large-scale project contributions.",
       Responsibilities: [
-        "Stepped into a challenging role as the technical lead and sole developer on a project with minimal knowledge transfer, successfully migrating a MySQL database deployed on Amazon Linux AMI with over 1 million records using Sails.js and a REST API.",
+        "Stepped into a challenging role as the technical lead and sole developer on a project with minimal knowledge transfer, migrating a MySQL database deployed on Amazon Linux AMI with over 1 million records within a month.",
         "Oversaw significant contributions to a large codebase using Next.js, Redux, and React, introducing new features while adhering to strict quality checks and testing protocols.",
         "Volunteered for an internal project built with React/Redux, mentoring junior engineers on collaborative project contribution while developing mock data allowing frontend development to continue during backend rewrite.",
       ],
@@ -90,13 +90,23 @@ export default function Resume() {
       Company: "IBM",
       Date: "December 2018 - February 2022",
       Title: "Application Developer",
-      Description: "",
+      Description: "Mastered new tech to modernize decade-old code and steer large government projects, while coaching junior team members. Orchestrated a cloud migration over several months and solidified the process with comprehensive documentation.",
       Responsibilities: [
-        "Contributed to large-scale government projects with distributed teams of varying sizes on the design, development, and testing of solutions involving legacy code over a decade old while creating comprehensive documentation to explain new features and rectify inconsistencies in existing documentation.",
-        "Documented and managed the migration of transports from an on-premises SAP server to a cloud-based server, ensuring smooth transition and minimal disruption.",
-        "Mentored junior team members, assisting with projects outside of my direct involvement, demonstrating advanced knowledge and leadership skills.",
+        "Collaborated with distributed teams of various sizes on the design, development, and testing of solutions involving legacy code over a decade old to large-scale government projects while creating comprehensive documentation to explain new features and rectify inconsistencies in existing documentation.",
+        "Documented and managed over 3+ months the migration of transports from an on-premises SAP server to a cloud-based server, ensuring smooth transition and minimal disruption.",
+        "Mentored junior team members, assisting with projects both inside and outside of individual direct involvement.",
       ],
     },
+    {
+      Company: "Freelance",
+      Date: "March 2018 - December 2018",
+      Title: "Fullstack Engineer",
+      Description: "Developed and deployed a fullstack web application for a local business, including custom styling, while managing a team of two including a writer and a designer.",
+      Responsibilities: [
+        "Led a small team to develop a full-stack web application for a local business, driving more site traffic and boosting sales.",
+        "Employed Agile methods for on-time, within-budget delivery while maintaining clear client communication to meet and exceed expectations.",
+      ],
+    }
   ];
 
   return (
@@ -128,26 +138,17 @@ export default function Resume() {
       <div className={styles.summary}>
         <h2 className={styles.center}>Software Engineer</h2>
         <p>
-          Skilled, hands-on, accomplished professional with experience providing
-          software engineering and development services to meet organizational
-          goals. Adept at resolving issues, implementing products and tools that
-          improve processes, and coordinating with leadership to achieve
-          outcomes. Ability to prioritize tasks, create resources, and lead
-          initiatives that allow for project success.
+          Software professional with a strong bias for action and expertise in
+          large government and developer projects. Valued for interpersonal
+          skills combined with a positive approach, strong communication, and
+          collaboration skills. Recognized for innovative and creative solutions
+          to complex problems together with strong organizational and time
+          management skills. Known for accepting and thriving in challenging and
+          professional development opportunities.
         </p>
       </div>
       <div className={styles.skills}>
         <h2 className={styles.center}>Key Skills</h2>
-        <ul className={styles.skillSection}>
-          <li>
-            <b>
-              <em>Expertise:</em>
-            </b>
-          </li>
-          {expertise.map((skill) => (
-            <li key={skill}>{skill}</li>
-          ))}
-        </ul>
         <ul className={styles.skillSection}>
           <li className={styles.category}>
             <b>
