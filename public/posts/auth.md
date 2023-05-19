@@ -1,0 +1,204 @@
+---
+title: Create a Fully Functional Next.js Digital Garden - Part 7 - Authentication Basics
+date: 2023-05-19T14:38:23-05:00
+author: Bannon Tanner
+---
+
+## Introduction:
+
+In this post, we will explore the process of integrating the Next-Auth package into a Next.js project configured with the app-router for social authentication. We will cover the steps involved in setting up the required routes, configuring social providers, managing environment variables, creating client components, handling session management, and organizing components using a providers component. By the end of this tutorial, you will have a solid understanding of how to implement social authentication in your Next.js application.
+
+
+## Installation and Setup:
+
+To begin, add and install the Next-Auth package in your project by running the following command in your terminal:
+
+```sh
+npm install next-auth
+```
+
+This will install Next-Auth as a dependency in your project.
+
+
+## Creating Authentication Routes and Configuring Social Providers:
+
+Next, create an [api route](https://next-auth.js.org/getting-started/example#add-api-route) that handles authentication for the social providers. In the project's pages/api/auth directory, create a file named [...nextauth]/route.ts (or .js if you are not using TypeScript). This file will serve as the authentication route for Next-Auth.
+
+Inside the [...nextauth] route file, configure the social providers you want to use, such as GitHub, Discord, and Google. Find the desired provider from [this list](https://next-auth.js.org/configuration/providers/oauth#built-in-providers) and follow the instructions to obtain the client IDs and client secrets for each provider. Also make sure that the redirect URLs are set up correctly following the pattern `[origin]/api/auth/callback/[provider]` (e.g. for local development and GitHub provider it would be `http://localhost:3000/api/auth/callback/github`)
+
+```ts
+// app/api/auth/[...nextauth]/route.ts
+
+import NextAuth from "next-auth";
+import GithubProvider from "next-auth/providers/github";
+import DiscordProvider from "next-auth/providers/discord";
+import GoogleProvider from "next-auth/providers/google";
+
+const handler = NextAuth({
+  providers: [
+    GithubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID as string,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+    }),
+    DiscordProvider({
+      clientId: process.env.DISCORD_CLIENT_ID as string,
+      clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    }),
+  ],
+});
+
+export { handler as GET, handler as POST };
+
+```
+
+Make sure to add these credentials securely to your environment variables, both locally and on your deployment platform (e.g., Vercel). The local environment file should now resemble the following:
+
+```env
+GITHUB_TOKEN=<gh_token>
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=<secret>
+GITHUB_CLIENT_ID=<gh_id>
+GITHUB_CLIENT_SECRET=<gh_secret>
+DISCORD_CLIENT_ID=<discord_id>
+DISCORD_CLIENT_SECRET=<discord_secret>
+GOOGLE_CLIENT_ID=<google_id>
+GOOGLE_CLIENT_SECRET=<google_secret>
+```
+
+If Vercel is used for deployment, the NEXTAUTH_URL variable is not needed in the production environment as the service [reads the VERCEL_URL variable](https://next-auth.js.org/warnings#nextauth_url) from Vercel.
+
+[Read here](https://next-auth.js.org/configuration/options#secret) to find out how to generate a NEXTAUTH_SECRET.
+
+
+## Creating the LoginBtn Component:
+
+Now, create a client component called LoginBtn that displays a sign-in or sign-out button depending on the user's authentication status. This component will utilize the useSession hook from the next-auth/react package to retrieve the session information.
+
+```ts
+// components/login-btn.tsx
+
+"use client";
+
+import { useSession, signIn, signOut } from "next-auth/react";
+
+export default function LoginBtn() {
+  const { data: session } = useSession();
+  if (session) {
+    return (
+      <>
+        Signed in as {session.user?.email} <br />
+        <button onClick={() => signOut()}>Sign out</button>
+      </>
+    );
+  }
+  return (
+    <>
+      Not signed in <br />
+      <button onClick={() => signIn()}>Sign in</button>
+    </>
+  );
+}
+```
+
+
+## Adding LoginBtn to the Navbar:
+
+Integrate the LoginBtn component into the navbar. 
+
+```ts
+// components/Navbar.tsx
+
+import Link from "next/link";
+import styles from './navigation.module.css';
+import LoginBtn from "./login-btn";
+
+export default function Navbar() {
+  return (
+    <nav className={styles.navbar}>
+      <div>
+        <Link href="/">Home</Link>
+        <Link href="/blog">Blog</Link>
+        <Link href="/resume">Resume</Link>
+        <Link href="/portfolio">Portfolio</Link>
+      </div>
+      <div>
+        <LoginBtn />
+      </div>
+    </nav>
+  );
+}
+
+```
+
+Note that you might encounter an error stating that the useSession hook cannot be used without a SessionProvider wrapping the component.
+
+
+## Creating the Providers Component:
+
+To resolve the error and provide the session context to the entire application without making the entire application a client component, create a Providers component. This component will wrap the SessionProvider from next-auth/react, ensuring that the session context is available to all components within its scope.
+
+```ts
+// app/providers.tsx
+
+"use client";
+
+import { ReactNode } from "react";
+import { SessionProvider } from "next-auth/react";
+
+interface ProvidersProps {
+  children: ReactNode;
+}
+
+export function Providers({ children }: ProvidersProps) {
+  return <SessionProvider>{children}</SessionProvider>;
+}
+
+```
+
+
+## Importing Providers to the Layout Component:
+
+In the layout component (e.g., app/layout.tsx), import the Providers component and wrap the navbar component and children prop with it. It is considered best practice to pass server-rendered components as props when client components or context is required. This approach allows the server-rendered components to remain server components rather than client components.
+
+```ts
+// app/layout.tsx
+
+import "./globals.css";
+import { Inter } from "next/font/google";
+import Navbar from "@/components/Navbar";
+import { Providers } from "./providers";
+
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata = {
+  title: "Next.js Digital Garden",
+  description: "Digital Garden built with Next.js",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body className={inter.className}>
+        <Providers>
+          <Navbar />
+          <div>{children}</div>
+        </Providers>
+      </body>
+    </html>
+  );
+}
+
+```
+
+
+## Conclusion:
+
+Congratulations! You have successfully implemented Next-Auth for social authentication in your Next.js project. By installing Next-Auth, creating the necessary authentication routes, configuring social providers, managing environment variables, creating client components, handling session management with the useSession hook, and organizing components using the Providers component, you now have a robust authentication system in place. Feel free to extend this implementation by adding more social providers or customizing the authentication flow to suit your project's requirements.
