@@ -66,7 +66,8 @@ export default function Resume() {
       Company: "Amazon Web Services",
       Date: "August 2022 - April 2023",
       Title: "Developer Experience Engineer",
-      Description: "Led an indirect team of two other developer experience engineers to maintain and improve the AWS Amplify JS repository, directly contributing to lower issue counts, improved customer experience, and triaging issues.",
+      Description:
+        "Led an indirect team of two other developer experience engineers to maintain and improve the AWS Amplify JS repository, directly contributing to lower issue counts, improved customer experience, and triaging issues.",
       Responsibilities: [
         "Spearheaded cross-functional initiatives to enhance developer experience, reducing open GitHub issues for the Amplify JS repository by 36%.",
         "Mentored and coached junior developer experienced engineers, resulting in one promotion to a senior position.",
@@ -79,7 +80,8 @@ export default function Resume() {
       Company: "Perficient",
       Date: "February 2022 - August 2022",
       Title: "Technical Consultant",
-      Description: "Navigated multiple projects, from independently tackling backend challenges, to fulfilling frontend expectations with React/Next.js/Redux, while mentoring junior team members in large-scale project contributions.",
+      Description:
+        "Navigated multiple projects, from independently tackling backend challenges, to fulfilling frontend expectations with React/Next.js/Redux, while mentoring junior team members in large-scale project contributions.",
       Responsibilities: [
         "Stepped into a challenging role as the technical lead and sole developer on a project with minimal knowledge transfer, migrating a MySQL database deployed on Amazon Linux AMI with over 1 million records within a month.",
         "Oversaw significant contributions to a large codebase using Next.js, Redux, and React, introducing new features while adhering to strict quality checks and testing protocols.",
@@ -90,7 +92,8 @@ export default function Resume() {
       Company: "IBM",
       Date: "December 2018 - February 2022",
       Title: "Application Developer",
-      Description: "Mastered new tech to modernize decade-old code and steer large government projects, while coaching junior team members. Orchestrated a cloud migration over several months and solidified the process with comprehensive documentation.",
+      Description:
+        "Mastered new tech to modernize decade-old code and steer large government projects, while coaching junior team members. Orchestrated a cloud migration over several months and solidified the process with comprehensive documentation.",
       Responsibilities: [
         "Collaborated with distributed teams of various sizes on the design, development, and testing of solutions involving legacy code over a decade old to large-scale government projects while creating comprehensive documentation to explain new features and rectify inconsistencies in existing documentation.",
         "Documented and managed over 3+ months the migration of transports from an on-premises SAP server to a cloud-based server, ensuring smooth transition and minimal disruption.",
@@ -101,12 +104,13 @@ export default function Resume() {
       Company: "Freelance",
       Date: "March 2018 - December 2018",
       Title: "Fullstack Engineer",
-      Description: "Developed and deployed a fullstack web application for a local business, including custom styling, while managing a team of two including a writer and a designer.",
+      Description:
+        "Developed and deployed a fullstack web application for a local business, including custom styling, while managing a team of two including a writer and a designer.",
       Responsibilities: [
         "Led a small team to develop a full-stack web application for a local business, driving more site traffic and boosting sales.",
         "Employed Agile methods for on-time, within-budget delivery while maintaining clear client communication to meet and exceed expectations.",
       ],
-    }
+    },
   ];
 
   return (
@@ -138,13 +142,13 @@ export default function Resume() {
       <div className={styles.summary}>
         <h2 className={styles.center}>Software Engineer</h2>
         <p>
-          Software professional with a strong bias for action and expertise in
-          large government and developer projects. Valued for interpersonal
-          skills combined with a positive approach, strong communication, and
-          collaboration skills. Recognized for innovative and creative solutions
-          to complex problems together with strong organizational and time
-          management skills. Known for accepting and thriving in challenging and
-          professional development opportunities.
+          Software professional with a strong bias for action and sense of
+          ownership. Valued for interpersonal skills combined with a positive
+          approach, strong communication, and collaboration skills. Recognized
+          for innovative and creative solutions to complex problems together
+          with strong organizational and time management skills. Known for
+          accepting and thriving in challenging and professional development
+          opportunities.
         </p>
       </div>
       <div className={styles.skills}>
