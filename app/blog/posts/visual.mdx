@@ -1,13 +1,13 @@
----
-title: Create a Fully Functional Next.js Digital Garden - Part 3 - Syntax Highlighting and Basic Styling
-date: 2023-05-09T10:00:00-05:00
-author: Bannon Tanner
----
+export const meta = {
+  title:
+    "Create a Fully Functional Next.js Digital Garden - Part 3 - Syntax Highlighting and Basic Styling",
+  date: "2023-05-09T10:00:00-05:00",
+  author: "Bannon Tanner",
+};
 
 ## Introduction
 
 After the previous post, several issues were identified with the blog app, such as rendering errors in the console, displaying all blog posts on every individual blog page, lacking custom styling, and an overall unpolished appearance due to the absence of applied default styling.
-
 
 ## Transitioning to Remark
 
@@ -72,7 +72,6 @@ The imports for `react-markdown` and `remark-gfm` should be removed from the dyn
 
 With these changes, the application will no longer display console rendering errors, allowing for the continued development of additional features.
 
-
 ## Adding Styling
 
 To enhance the aesthetic appeal of the blog application, a simple dark theme [available on GitHub](https://gist.github.com/ZachSaucier/8295d9dc926d7064ff0d4f3f04b35b55) will be incorporated. This will involve replacing the default global styles and refining the styling throughout the project. The complete contents of the CSS file will not be replicated here, but the following additions should be made:
@@ -116,7 +115,6 @@ As the `react-markdown` package is no longer used, it can be safely removed.
 ```bash
 npm remove react-markdown
 ```
-
 
 ## Implementing Syntax Highlighting
 
@@ -210,10 +208,9 @@ This modification also necessitates converting all calls to the `getSortedPostsD
 
 Now any code rendered in a blog post will be highlighted with an eye-catching ["dracula-soft" syntax highlighting](https://draculatheme.com/visual-studio-code).
 
-
 ## Fixing Dynamic Page
 
-Previously, the dynamic page was mapping through all posts and displaying them in reverse-date order simultaneously. The code has been updated to find the desired post based on the `id` returned from `generateStaticParams`. 
+Previously, the dynamic page was mapping through all posts and displaying them in reverse-date order simultaneously. The code has been updated to find the desired post based on the `id` returned from `generateStaticParams`.
 
 Additionally, it is helpful to destructure the desired properties in the dynamic posts page. As such, the `PostData` type has been refined, with more properties added for improved typing in both the dynamic page and the posts utility function.
 
@@ -289,7 +286,6 @@ async function convertContentToHtml(content: string): Promise<string> {
     .processSync(content)
     .toString();
 }
-
 ```
 
 ```ts
@@ -328,7 +324,6 @@ export async function generateStaticParams() {
     id: post.id,
   }));
 }
-
 ```
 
 ```ts
@@ -348,7 +343,9 @@ export default async function Blog() {
           <li key={id}>
             <Link href={`/blog/${id}`}>
               <h2>{title}</h2>
-              <p>{author} - {date}</p>
+              <p>
+                {author} - {date}
+              </p>
             </Link>
           </li>
         ))}
@@ -357,7 +354,6 @@ export default async function Blog() {
   );
 }
 ```
-
 
 ## Conclusion
 

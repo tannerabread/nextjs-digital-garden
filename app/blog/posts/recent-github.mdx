@@ -1,8 +1,9 @@
----
-title: Create a Fully Functional Next.js Digital Garden - Part 6 - GitHub Activity Tracking
-date: 2023-05-10T15:26:00-05:00
-author: Bannon Tanner
----
+export const meta = {
+  title:
+    "Create a Fully Functional Next.js Digital Garden - Part 6 - GitHub Activity Tracking",
+  date: "2023-05-10T15:26:00-05:00",
+  author: "Bannon Tanner",
+};
 
 ## Introduction
 
@@ -21,7 +22,7 @@ Additionally, the following code should be added to `.gitignore`:
 .env*
 ```
 
-Opting for GraphQL will yield superior results over the REST API. To explore the GitHub GraphQL API, try the [Apollo GraphQL Sandbox](https://studio.apollographql.com/sandbox/explorer?) and insert the previously generated personal access token into the `Authorization` header as "Bearer <access_token>" using the endpoint "https://api.github.com/graphql".
+Opting for GraphQL will yield superior results over the REST API. To explore the GitHub GraphQL API, try the [Apollo GraphQL Sandbox](https://studio.apollographql.com/sandbox/explorer?) and insert the previously generated personal access token into the `Authorization` header as "Bearer \<access_token\>" using the endpoint "https://api.github.com/graphql".
 
 Upon completion, the portfolio page code should resemble the following:
 
@@ -126,7 +127,6 @@ async function getGithub(): Promise<ghResponse> {
 }
 ```
 
-
 ## Updating Styling for Links
 
 As hyperlinks are now present in multiple locations on the website, it is crucial to improve their appearance.
@@ -146,7 +146,6 @@ ul {
 }
 ```
 
-
 ## Add Environment Variables to Vercel via CLI
 
 For the GitHub fetch to work in the production application, the environment variables must be added to Vercel. This is simple to do through the Vercel CLI:
@@ -164,7 +163,6 @@ git add .
 git commit -m "added github repository and contribution information"
 git push
 ```
-
 
 ## Conclusion
 

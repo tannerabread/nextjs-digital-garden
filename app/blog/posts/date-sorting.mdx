@@ -1,8 +1,9 @@
----
-title: Create a Fully Functional Next.js Digital Garden - Part 5 - Date Sorting
-date: 2023-05-09T14:36:00-05:00
-author: Bannon Tanner
----
+export const meta = {
+  title:
+    "Create a Fully Functional Next.js Digital Garden - Part 5 - Date Sorting",
+  date: "2023-05-09T14:36:00-05:00",
+  author: "Bannon Tanner",
+};
 
 ## Introduction
 
@@ -10,7 +11,7 @@ An issue was discovered after the last post, when two posts were published on th
 
 ## The Fix
 
-To resolve this issue, the time must be added to the string in the front-matter. Additionally, the posts utility function should be updated to return only the desired string. This approach is more efficient than formatting the string in the pages. 
+To resolve this issue, the time must be added to the string in the front-matter. Additionally, the posts utility function should be updated to return only the desired string. This approach is more efficient than formatting the string in the pages.
 
 All the correctly formatted times should be added in the format `YYYY-MM-DDTHH:mm:ss-Z`, where Z represents the timezone. The sorting functionality will continue to function correctly, but the date must now be mapped to a more human-friendly string.
 
@@ -33,7 +34,6 @@ return allPostsData
     };
   });
 ```
-
 
 ## Conclusion
 

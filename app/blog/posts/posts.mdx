@@ -1,8 +1,9 @@
----
-title: Create a Fully Functional Next.js Digital Garden - Part 2 - Markdown Blog
-date: 2023-05-08T14:00:00-05:00
-author: Bannon Tanner
----
+export const meta = {
+  title:
+    "Create a Fully Functional Next.js Digital Garden - Part 2 - Markdown Blog",
+  date: "2023-05-08T14:00:00-05:00",
+  author: "Bannon Tanner",
+};
 
 ## Introduction
 
@@ -10,7 +11,7 @@ In order to develop and document this project incrementally, incorporating a blo
 
 Upon completion of this step, the application's folder structure and associated files should resemble the following:
 
-```
+```sh
 digital-garden/
 |-- app/
 |   |-- blog/
@@ -30,7 +31,6 @@ Next.js leverages folders to define URL routes, which simplifies routing in comp
 This application utilizes the Next.js `app` router, meaning that any folders within in the `app` folder will route to a URL route as long as a `page.tsx` file is associated with them. The `page.tsx` file is what renders the route publicly accessible.
 
 The above folder structure will generate home (`/`), blog (`/blog`), and individual blog posts (`/blog/[id]`) routes. The `/blog/[id]` route is dynamic and will display a page for every post that matches the route.
-
 
 ## Developing the Utility Function
 
@@ -95,11 +95,9 @@ export function getSortedPostsData(): PostData[] {
     a.date < b.date ? 1 : -1
   );
 }
-
 ```
 
 With this implementation, the application can now access files within the `posts` directory and efficiently organize them by the date specified in each posts's metadata.
-
 
 ## Implementing Posts Homepage and Dynamic Posts Pages
 
@@ -139,7 +137,6 @@ export default function Blog() {
     </main>
   );
 }
-
 ```
 
 To test this functionality, create a new folder within the public directory and a file to hold some sample markdown.
@@ -149,12 +146,13 @@ mkdir public/posts
 touch public/posts/test.md
 ```
 
-```md
-<!-- public/posts/test.md -->
----
+````md
+## <!-- public/posts/test.md -->
+
 title: Test Post
 date: May 8, 2023
 author: Test Author
+
 ---
 
 Hello from markdown
@@ -162,12 +160,13 @@ Hello from markdown
 ```js
 test.code.block();
 ```
+````
 
 Note that 3 additional backticks should be added at the end of the code block to close it.
 
 Navigating to the [posts homepage](/blog) will now display the title, date, and author of the copied post.
 
-The application requires a method to showcase individual posts and convert the markdown content into HTML. By implementing a dynamic route, a single function can be written to accommodate every post. Utilize `react-markdown` and `remark-gfm` to transform the markdown into HTML while incorporating GitHub flavored markdown features. 
+The application requires a method to showcase individual posts and convert the markdown content into HTML. By implementing a dynamic route, a single function can be written to accommodate every post. Utilize `react-markdown` and `remark-gfm` to transform the markdown into HTML while incorporating GitHub flavored markdown features.
 
 ```bash
 npm install react-markdown remark-gfm
@@ -206,7 +205,6 @@ export async function generateStaticParams() {
     id: post.id,
   }));
 }
-
 ```
 
 Push the changes to the repository to trigger the Vercel build process and update the deployed production application.
@@ -216,7 +214,6 @@ git add .
 git commit -m "added blog functionality"
 git push
 ```
-
 
 ## Conclusion
 

@@ -1,8 +1,8 @@
----
-title: Create a Fully Functional Next.js Digital Garden - Part 4 - NavBar
-date: 2023-05-09T13:30:00-05:00
-author: Bannon Tanner
----
+export const meta = {
+  title: "Create a Fully Functional Next.js Digital Garden - Part 4 - NavBar",
+  date: "2023-05-09T13:30:00-05:00",
+  author: "Bannon Tanner",
+};
 
 ## Introduction
 
@@ -30,7 +30,7 @@ export default function Resume() {
       <h1>Resume</h1>
       <p>This is the Resume page.</p>
     </div>
-  )
+  );
 }
 ```
 
@@ -43,7 +43,7 @@ export default function Portfolio() {
       <h1>Portfolio</h1>
       <p>This is the Portfolio page.</p>
     </div>
-  )
+  );
 }
 ```
 
@@ -151,7 +151,6 @@ Add the `.navbar` class to the `<nav>` element in the component to apply the sty
 return (
   <nav className={styles.navbar}>
 ```
-
 
 ## Conclusion
 

@@ -1,18 +1,22 @@
 import Link from "next/link";
-import { getSortedPostsData, PostData } from "@/lib/posts";
+import { MetaData, convertDate, getAllPostsMeta } from "@/lib/posts";
 
 export default async function Blog() {
-  const posts: PostData[] = await getSortedPostsData();
+  const posts: MetaData[] = await getAllPostsMeta();
+
+  if (!posts) return <div>Loading...</div>;
 
   return (
     <main>
       <h1>All Blog Posts</h1>
       <ul>
-        {posts.map(({ id, title, author, date }) => (
-          <li key={id}>
-            <Link href={`/blog/${id}`}>
-              <h2>{title}</h2>
-              <p>{author} - {date}</p>
+        {posts.map((post: MetaData) => (
+          <li key={post.id}>
+            <Link href={`/blog/${post.id}`}>
+              <h2>{post.title}</h2>
+              <p>
+                {post.author} - {convertDate(post.date)}
+              </p>
             </Link>
           </li>
         ))}

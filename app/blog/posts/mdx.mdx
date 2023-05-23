@@ -1,0 +1,263 @@
+export const meta = {
+  title:
+    "Create a Fully Functional Next.js Digital Garden - Part 9 - Migrating to MDX",
+  date: "2023-05-23T13:31:26-05:00",
+  author: "Bannon Tanner",
+};
+
+Encountering issues with a Next.js blog utilizing Markdown files? This post aims to provide a comprehensive guide on migrating from `.md` files to `.mdx` files. The migration can significantly enhance the development experience and solve some common issues.
+
+## The Initial Challenge
+
+The previous setup had a [build error](https://github.com/shikijs/shiki/issues/461) resulting from the incompatibility between shiki and the Next.js app router. Various alternative routes were explored, including using `marked`, `prism`, and `remark`/`rehype` with different highlighters. Unfortunately, none of these solutions proved successful.
+
+## The MDX Solution
+
+A review of the Next.js documentation led to a decision to switch to an exported meta object instead of frontmatter, following the recommended setup for MDX with the app router. Despite some gaps in the documentation, which extended the transition process, the changes led to significant improvements.
+
+## Migrating to MDX: A Breakdown
+
+The first step involved changing all `.md` files to `.mdx`. MDX is a superset of Markdown that supports JSX, enabling the embedding of dynamic content directly in blog posts.
+
+## Moving the Posts Folder
+
+The posts folder was relocated to the @/app/blog folder. This change was implemented to create a more intuitive project structure and allow the Next.js plugin to handle transforming Markdown and React components into HTML.
+
+## Adding mdx-components.tsx File
+
+An mdx-components.tsx file was added to the root of the project. This file can contain custom elements that can be used within MDX files enabling custom styling.
+
+```jsx
+// ./mdx-components.tsx
+
+import type { MDXComponents } from 'mdx/types';
+ 
+// This file allows you to provide custom React components
+// to be used in MDX files. You can import and use any
+// React component you want, including components from
+// other libraries.
+ 
+// This file is required to use MDX in `app` directory.
+export function useMDXComponents(components: MDXComponents): MDXComponents {
+  return {
+    // Allows customizing built-in components, e.g. to add styling.
+    // h1: ({ children }) => <h1 style={{ fontSize: "100px" }}>{children}</h1>,
+    ...components,
+  };
+}
+```
+
+Currently no additional styling has been added to this file but will be added later in the project.
+
+## Adding MDX and Plugin Support to Next.js
+
+`next.config.js` was modified to `next.config.mjs` to enable ESM modules to be configured. The official MDX plugin for Next.js, @next/mdx, was added to the next.config.mjs file. This allows MDX files to be imported as React components.
+
+Several MDX-related packages were installed, including @next/mdx, @mdx-js/loader, @mdx-js/react, @types/mdx, and rehype-pretty-code.
+
+The desired remark/rehype plugins were then added to next.config.mjs, specifically remark-gfm for GitHub flavored markdown and rehype-pretty-code for code syntax highlighting.
+
+The final configuration file looked as follows:
+
+```mjs
+// ./next.config.mjs
+
+import remarkGfm from "remark-gfm";
+import rehypePrettyCode from "rehype-pretty-code";
+import withMDX from "@next/mdx";
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    appDir: true,
+  },
+};
+
+// rehypePrettyCode options
+const options = {
+  theme: "dracula-soft",
+  keepBackground: true,
+  onVisitLine(node) {
+    if (node.children.length === 0) {
+      node.children = [{ type: "text", value: " " }];
+    }
+  },
+  onVisitHighlightedLine(node) {
+    node.properties.className.push("highlighted");
+  },
+  onVisitHighlightedWord(node) {
+    node.properties.className = ["word"];
+  },
+};
+
+export default withMDX({
+  options: {
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [[rehypePrettyCode, options]],
+  },
+})(nextConfig);
+
+```
+
+## Refactoring the Posts Utility
+
+The posts utility was refactored to export three functions and one interface: getPageData() for getting an individual post's data, getAllPostsMeta() to replace getSortedPostsData() and get the metadata for every post, convertDate(), and the MetaData interface:
+
+```ts
+// @/lib/posts.ts
+
+import fs from "fs";
+import path from "path";
+
+export interface MetaData {
+  [key: string]: any;
+}
+
+const postsDirectory: string = path.join(process.cwd(), "app/blog/posts");
+const fileNames: string[] = fs.readdirSync(postsDirectory);
+
+export async function getPageData(id: string): Promise<MetaData> {
+  const { meta } = require(`@/app/blog/posts/${id}`);
+  const postData: MetaData = {
+    meta: { ...meta, id: id.replace(/\.mdx/, "") },
+  };
+  return postData;
+}
+
+export async function getAllPostsMeta(): Promise<MetaData[]> {
+  let posts = [];
+
+  for (const file of fileNames) {
+    const { meta } = await getPageData(file);
+    posts.push(meta);
+  }
+  posts.sort((a: MetaData, b: MetaData) => {
+    return a.date < b.date ? 1 : -1;
+  });
+  return posts;
+}
+
+export function convertDate(date: string): string {
+  return new Date(date).toLocaleString();
+}
+
+```
+
+## Updating the Main Blog Page
+
+The main blog page was updated to use the getAllPostsMeta() function to get the metadata for all posts, sorted by date:
+
+```tsx
+// @/app/blog/page.tsx
+
+import Link from "next/link";
+import { MetaData, convertDate, getAllPostsMeta } from "@/lib/posts";
+
+export default async function Blog() {
+  const posts: MetaData[] = await getAllPostsMeta();
+
+  if (!posts) return <div>Loading...</div>;
+
+  return (
+    <main>
+      <h1>All Blog Posts</h1>
+      <ul>
+        {posts.map((post: MetaData) => (
+          <li key={post.id}>
+            <Link href={`/blog/${post.id}`}>
+              <h2>{post.title}</h2>
+              <p>
+                {post.author} - {convertDate(post.date)}
+              </p>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </main>
+  );
+}
+
+```
+
+## Updating the Posts Dynamic Page
+
+The posts dynamic page was updated to use getAllPostsMeta() for the generateStaticParams() function and a dynamic import (next/dynamic) of the post, which returns a component that can be used directly.
+
+Metadata for individual posts is retrieved by sending the id to getPageData(). This metadata is then used to add the title, author, and date to the post.
+
+The update file looks like follows:
+
+```tsx
+// @/app/blog/[id]/page.tsx
+
+import dynamic from "next/dynamic";
+import { convertDate, getAllPostsMeta, getPageData } from "@/lib/posts";
+import { SocialShare } from "@/components/SocialShare";
+
+export default async function Post({ params }: { params: { id: string } }) {
+  const { id } = params;
+
+  const { meta } = await getPageData(`${id}.mdx`);
+  const { title, author, date } = meta;
+  const convertedDate = convertDate(date);
+
+  const Post = dynamic(() => import(`../posts/${id}.mdx`));
+
+  if (!Post) return <div>Loading...</div>;
+
+  return (
+    <div key={id} className="main">
+      <h1>{title}</h1>
+      <h3>
+        {author} - {convertedDate}
+      </h3>
+      <Post />
+      <SocialShare url={`${process.env.SITE_URL}/blog/${id}`} title={title} />
+    </div>
+  );
+}
+
+// generate route segments
+export async function generateStaticParams() {
+  const posts = await getAllPostsMeta();
+
+  return posts;
+}
+
+```
+
+## Removing Unnecessary Packages
+
+After the migration, all the packages that were previously installed but no longer needed were removed from the project.
+
+The remaining dependencies in package.json were:
+
+```json
+"dependencies": {
+  "@mdx-js/loader": "^2.3.0",
+  "@mdx-js/react": "^2.3.0",
+  "@next/mdx": "^13.4.3",
+  "@types/mdx": "^2.0.5",
+  "@types/node": "20.0.0",
+  "@types/react": "18.2.5",
+  "@types/react-dom": "18.2.3",
+  "eslint": "8.39.0",
+  "eslint-config-next": "13.4.1",
+  "next": "^13.4.2",
+  "next-auth": "^4.22.1",
+  "react": "18.2.0",
+  "react-dom": "18.2.0",
+  "react-markdown": "^8.0.7",
+  "react-share": "^4.4.1",
+  "rehype-pretty-code": "^0.9.5",
+  "remark-gfm": "^3.0.1",
+  "shiki": "^0.14.2",
+  "typescript": "5.0.4"
+}
+```
+
+## Conclusion
+
+The migration from Markdown to MDX in a Next.js blog has proven to be a worthwhile investment. It not only resolved the initial build error but also allowed for the enhancement of blog posts with dynamic content. It's highly recommended for similar projects facing comparable challenges.
+
+Explore the [current state of the project](https://bannon.cloud/blog) and the [repository](https://github.com/tannerabread/nextjs-digital-garden).

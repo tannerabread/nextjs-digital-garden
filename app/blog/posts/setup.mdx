@@ -1,14 +1,16 @@
----
-title: Create a Fully Functional Next.js Digital Garden - Part 1 - Initial Project Setup
-date: 2023-05-05T12:30:00-05:00
-author: Bannon Tanner
----
+export const meta = {
+  title:
+    "Create a Fully Functional Next.js Digital Garden - Part 1 - Initial Project Setup",
+  date: "2023-05-05T12:30:00-05:00",
+  author: "Bannon Tanner",
+};
 
 ## Introduction
 
 In this series we will systematically build a digital garden application using [Next.js](https://nextjs.org/). Our aim is to leverage Next.js and React features in realistic, practical scenarios.
 
 The application will incorporate the following:
+
 - Blog posts with Markdown and MDX support
 - Navigation Bar
 - Layout and Styling
@@ -74,7 +76,7 @@ code .
 
 ### Creating a Repository and Pushing the Initial Project
 
-Create a new GitHub repository and push the initial project. By default, Next.js initializes projects as git 
+Create a new GitHub repository and push the initial project. By default, Next.js initializes projects as git
 repositories with the default branch named 'main'. Consequently, an initial commit should already be present.
 
 ```shell
@@ -101,11 +103,11 @@ Select `Continue with GitHub`, and the browser will automatically connect your a
 vercel
 ```
 
-The Vercel CLI is designed to automatically detect optimal settings for most Next.js apps, allowing you to accept the default configurations presented in the command prompt. 
+The Vercel CLI is designed to automatically detect optimal settings for most Next.js apps, allowing you to accept the default configurations presented in the command prompt.
 
 Upon completing the configuration, your app will be deployed to Vercel. The CLI provides the deployment URL, which can be copied and opened in your browser to view the live application.
 
-Alternatively you can visit [your dashboard](https://vercel.com/dashboard) and select the `digital-garden` application to see it deployed on a live server! 
+Alternatively you can visit [your dashboard](https://vercel.com/dashboard) and select the `digital-garden` application to see it deployed on a live server!
 
 As we utilized the CLI for deploying our application, the connecction to the GitHub repository has not yet been established. Fortunately, the Vercel CLI offers a convenient command to link the two.
 

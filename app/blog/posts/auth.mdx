@@ -1,13 +1,13 @@
----
-title: Create a Fully Functional Next.js Digital Garden - Part 7 - Authentication Basics
-date: 2023-05-19T14:38:23-05:00
-author: Bannon Tanner
----
+export const meta = {
+  title:
+    "Create a Fully Functional Next.js Digital Garden - Part 7 - Authentication Basics",
+  date: "2023-05-19T14:38:23-05:00",
+  author: "Bannon Tanner",
+};
 
 ## Introduction:
 
 In this post, we will explore the process of integrating the Next-Auth package into a Next.js project configured with the app-router for social authentication. We will cover the steps involved in setting up the required routes, configuring social providers, managing environment variables, creating client components, handling session management, and organizing components using a providers component. By the end of this tutorial, you will have a solid understanding of how to implement social authentication in your Next.js application.
-
 
 ## Installation and Setup:
 
@@ -18,7 +18,6 @@ npm install next-auth
 ```
 
 This will install Next-Auth as a dependency in your project.
-
 
 ## Creating Authentication Routes and Configuring Social Providers:
 
@@ -52,12 +51,11 @@ const handler = NextAuth({
 });
 
 export { handler as GET, handler as POST };
-
 ```
 
 Make sure to add these credentials securely to your environment variables, both locally and on your deployment platform (e.g., Vercel). The local environment file should now resemble the following:
 
-```env
+```sh
 GITHUB_TOKEN=<gh_token>
 NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=<secret>
@@ -72,7 +70,6 @@ GOOGLE_CLIENT_SECRET=<google_secret>
 If Vercel is used for deployment, the NEXTAUTH_URL variable is not needed in the production environment as the service [reads the VERCEL_URL variable](https://next-auth.js.org/warnings#nextauth_url) from Vercel.
 
 [Read here](https://next-auth.js.org/configuration/options#secret) to find out how to generate a NEXTAUTH_SECRET.
-
 
 ## Creating the LoginBtn Component:
 
@@ -104,16 +101,15 @@ export default function LoginBtn() {
 }
 ```
 
-
 ## Adding LoginBtn to the Navbar:
 
-Integrate the LoginBtn component into the navbar. 
+Integrate the LoginBtn component into the navbar.
 
 ```ts
 // components/Navbar.tsx
 
 import Link from "next/link";
-import styles from './navigation.module.css';
+import styles from "./navigation.module.css";
 import LoginBtn from "./login-btn";
 
 export default function Navbar() {
@@ -131,11 +127,9 @@ export default function Navbar() {
     </nav>
   );
 }
-
 ```
 
 Note that you might encounter an error stating that the useSession hook cannot be used without a SessionProvider wrapping the component.
-
 
 ## Creating the Providers Component:
 
@@ -156,9 +150,7 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return <SessionProvider>{children}</SessionProvider>;
 }
-
 ```
-
 
 ## Importing Providers to the Layout Component:
 
@@ -195,10 +187,10 @@ export default function RootLayout({
     </html>
   );
 }
-
 ```
-
 
 ## Conclusion:
 
 Congratulations! You have successfully implemented Next-Auth for social authentication in your Next.js project. By installing Next-Auth, creating the necessary authentication routes, configuring social providers, managing environment variables, creating client components, handling session management with the useSession hook, and organizing components using the Providers component, you now have a robust authentication system in place. Feel free to extend this implementation by adding more social providers or customizing the authentication flow to suit your project's requirements.
+
+Explore the [current state of the project](https://bannon.cloud/blog) and the [repository](https://github.com/tannerabread/nextjs-digital-garden).

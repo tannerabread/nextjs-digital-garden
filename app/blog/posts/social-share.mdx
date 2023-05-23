@@ -1,0 +1,178 @@
+export const meta = {
+  title:
+    "Create a Fully Functional Next.js Digital Garden - Part 8 - Adding Social Sharing Buttons",
+  date: "2023-05-22T13:31:26-05:00",
+  author: "Bannon Tanner",
+};
+
+This post will guide you through the process of integrating social share buttons into a Next.js blog. The purpose of adding these buttons is to make it easier for readers to share blog posts on their social media platforms, thereby increasing the visibility of the blog.
+
+## Installing the Required Package
+
+The first step involves installing the react-share package. This package provides a series of components to facilitate the implementation of sharing social media links. It can be installed via npm as follows:
+
+```shell
+npm i react-share
+```
+
+## Creating a Social Share Component
+
+After installing the react-share package, the next step is to create a new component called SocialShare. This component will contain different buttons for sharing the blog post on Facebook, Twitter, LinkedIn, and Reddit.
+
+```tsx
+// @/components/SocialShare.tsx
+
+"use client";
+
+import {
+  FacebookShareButton,
+  TwitterShareButton,
+  LinkedinShareButton,
+  RedditShareButton,
+} from "react-share";
+import {
+  FacebookIcon,
+  TwitterIcon,
+  LinkedinIcon,
+  RedditIcon,
+} from "react-share";
+import { FacebookShareCount, RedditShareCount } from "react-share";
+
+import styles from "./socialshare.module.css";
+
+export function SocialShare({ url, title }: { url: string; title: string }) {
+  return (
+    <div className={styles.socialShare}>
+      <div className={styles.network}>
+        <FacebookShareButton
+          url={url}
+          quote={title}
+          className={styles.networkShareButton}
+        >
+          <FacebookIcon size={32} round />
+        </FacebookShareButton>
+        <div>
+          <FacebookShareCount url={url} />
+        </div>
+      </div>
+      <div className={styles.network}>
+        <TwitterShareButton
+          url={url}
+          title={title}
+          className={styles.networkShareButton}
+        >
+          <TwitterIcon size={32} round />
+        </TwitterShareButton>
+      </div>
+      <div className={styles.network}>
+        <LinkedinShareButton
+          url={url}
+          title={title}
+          className={styles.networkShareButton}
+        >
+          <LinkedinIcon size={32} round />
+        </LinkedinShareButton>
+      </div>
+      <div className={styles.network}>
+        <RedditShareButton
+          url={url}
+          title={title}
+          className={styles.networkShareButton}
+        >
+          <RedditIcon size={32} round />
+        </RedditShareButton>
+        <div>
+          <RedditShareCount url={url} className={styles.networkShareCount} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+```
+
+## Adding CSS for the Social Share Component
+
+Once the SocialShare component is ready, it is important to style it to make it visually appealing and consistent with the rest of the blog's design. CSS can be used to achieve this. In the example below, the CSS is targeting the network share buttons and their count displays.
+
+```css
+.network {
+  vertical-align: top;
+  display: inline-block;
+  margin-right: 10px;
+  text-align: center;
+}
+
+.networkShareButton {
+  cursor: pointer;
+}
+
+.networkShareButton:hover:not(:active) {
+  opacity: 0.75;
+}
+
+.networkShareCount {
+  display: inline-flex;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: visible;
+  width: 0;
+  margin-top: 3px;
+  font-size: 12px;
+}
+```
+
+## Incorporating the Social Share Component into the Posts Page
+
+The final step is to add the SocialShare component to the dynamic posts page. This way, each individual post will have the social share buttons, allowing readers to share the post on their preferred social media platform.
+
+```tsx {5,30}
+// @/pages/blog/[id]/page.tsx
+
+import { notFound } from "next/navigation";
+import { getSortedPostsData, PostData } from "@/lib/posts";
+import { SocialShare } from "@/components/SocialShare";
+
+export default async function Post({ params }: { params: { id: string } }) {
+  const { id } = params;
+  console.log({ id })
+  const posts: PostData[] = await getSortedPostsData();
+  const post = posts.find(
+    (post) => post.id === id
+  ) as PostData;
+
+  if (!posts) return <div>Loading...</div>;
+  if (!post) { notFound() }
+
+  const { title, author, date, content } = post;
+
+  return (
+    <div key={id} className="main">
+      <h1>{title}</h1>
+      <h3>
+        {author} - {date}
+      </h3>
+      <div
+        className="simple-container"
+        dangerouslySetInnerHTML={{ __html: content }}
+      ></div>
+      <SocialShare url={`${process.env.SITE_URL}/blog/${id}`} title={title} />
+    </div>
+  );
+}
+
+// generate route segments
+export async function generateStaticParams() {
+  const posts: PostData[] = await getSortedPostsData();
+
+  return posts.map((post) => ({
+    id: post.id,
+  }));
+}
+```
+
+## Conclusion
+
+Adding social share buttons to a Next.js blog post can significantly increase the reach of the content by making it easier for readers to share the post with their networks. This guide provided a step-by-step process on how to achieve this using the react-share package, creating a new SocialShare component, and incorporating it into the dynamic posts page.
+
+Explore the [current state of the project](https://bannon.cloud/blog) and the [repository](https://github.com/tannerabread/nextjs-digital-garden).

@@ -1,40 +1,33 @@
-import { notFound } from "next/navigation";
-import { getSortedPostsData, PostData } from "@/lib/posts";
+import dynamic from "next/dynamic";
+import { convertDate, getAllPostsMeta, getPageData } from "@/lib/posts";
 import { SocialShare } from "@/components/SocialShare";
 
 export default async function Post({ params }: { params: { id: string } }) {
   const { id } = params;
-  console.log({ id })
-  const posts: PostData[] = await getSortedPostsData();
-  const post = posts.find(
-    (post) => post.id === id
-  ) as PostData;
 
-  if (!posts) return <div>Loading...</div>;
-  if (!post) { notFound() }
+  const { meta } = await getPageData(`${id}.mdx`);
+  const { title, author, date } = meta;
+  const convertedDate = convertDate(date);
 
-  const { title, author, date, content } = post;
+  const Post = dynamic(() => import(`../posts/${id}.mdx`));
+
+  if (!Post) return <div>Loading...</div>;
 
   return (
-    <div key={id} className="main">
+    <div key={id}>
       <h1>{title}</h1>
       <h3>
-        {author} - {date}
+        {author} - {convertedDate}
       </h3>
-      <div
-        className="simple-container"
-        dangerouslySetInnerHTML={{ __html: content }}
-      ></div>
-      <SocialShare url={`https://bannon.cloud/blog/${id}`} title={title} />
+      <Post />
+      <SocialShare url={`${process.env.SITE_URL}/blog/${id}`} title={title} />
     </div>
   );
 }
 
 // generate route segments
 export async function generateStaticParams() {
-  const posts: PostData[] = await getSortedPostsData();
+  const posts = await getAllPostsMeta();
 
-  return posts.map((post) => ({
-    id: post.id,
-  }));
+  return posts;
 }
