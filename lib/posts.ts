@@ -30,5 +30,5 @@ export async function getAllPostsMeta(): Promise<MetaData[]> {
 }
 
 export function convertDate(date: string): string {
-  return new Date(date).toLocaleString();
+  return new Date(date).toDateString();
 }
