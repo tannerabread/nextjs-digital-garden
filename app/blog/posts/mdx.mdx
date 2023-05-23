@@ -13,7 +13,7 @@ The previous setup had a [build error](https://github.com/shikijs/shiki/issues/4
 
 ## The MDX Solution
 
-A review of the Next.js documentation led to a decision to switch to an exported meta object instead of frontmatter, following the recommended setup for MDX with the app router. Despite some gaps in the documentation, which extended the transition process, the changes led to significant improvements.
+A review of the [Next.js documentation](https://nextjs.org/docs/app/building-your-application/configuring/mdx#frontmatter) led to a decision to switch to an exported meta object instead of frontmatter, following the recommended setup for MDX with the app router. Despite some gaps in the documentation, which extended the transition process, the changes led to significant improvements.
 
 ## Migrating to MDX: A Breakdown
 
@@ -21,11 +21,11 @@ The first step involved changing all `.md` files to `.mdx`. MDX is a superset of
 
 ## Moving the Posts Folder
 
-The posts folder was relocated to the @/app/blog folder. This change was implemented to create a more intuitive project structure and allow the Next.js plugin to handle transforming Markdown and React components into HTML.
+The posts folder was relocated to the `@/app/blog` folder. This change was implemented to create a more intuitive project structure and allow the Next.js plugin to handle transforming Markdown and React components into HTML.
 
 ## Adding mdx-components.tsx File
 
-An mdx-components.tsx file was added to the root of the project. This file can contain custom elements that can be used within MDX files enabling custom styling.
+An `mdx-components.tsx` file was added to the root of the project. This file can contain custom elements that can be used within MDX files enabling custom styling.
 
 ```jsx
 // ./mdx-components.tsx
@@ -54,6 +54,10 @@ Currently no additional styling has been added to this file but will be added la
 `next.config.js` was modified to `next.config.mjs` to enable ESM modules to be configured. The official MDX plugin for Next.js, @next/mdx, was added to the next.config.mjs file. This allows MDX files to be imported as React components.
 
 Several MDX-related packages were installed, including @next/mdx, @mdx-js/loader, @mdx-js/react, @types/mdx, and rehype-pretty-code.
+
+```sh
+npm install @next/mdx @mdx-js/loader @mdx-js/react @types/mdx rehype-pretty-code
+```
 
 The desired remark/rehype plugins were then added to next.config.mjs, specifically remark-gfm for GitHub flavored markdown and [rehype-pretty-code](https://rehype-pretty-code.netlify.app/) for code syntax highlighting.
 
