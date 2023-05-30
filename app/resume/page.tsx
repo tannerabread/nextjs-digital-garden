@@ -119,7 +119,9 @@ export default function Resume() {
     <div className={styles.container}>
       <div className={styles.heading}>
         <h1>Bannon Tanner</h1>
-        <a href="/resume.pdf">Download</a>
+        <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
+          Download
+        </a>
       </div>
       <div className={styles.contact}>
         <ul>
