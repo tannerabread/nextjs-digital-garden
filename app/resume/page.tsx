@@ -101,21 +101,26 @@ export default function Resume() {
       ],
     },
     {
-      Company: "Freelance",
+      Company: "Self-Employed",
       Date: "March 2018 - December 2018",
-      Title: "Fullstack Engineer",
+      Title: "Frontend Engineer",
       Description:
-        "Developed and deployed a fullstack web application for a local business, including custom styling, while managing a team of two including a writer and a designer.",
+        "Utilized self-taught knowledge of frontend development, leveraging Ruby on Rails and HTML, CSS, JavaScript, and the Bootstrap framework to create engaging web interfaces for local clients.",
       Responsibilities: [
-        "Led a small team to develop a full-stack web application for a local business, driving more site traffic and boosting sales.",
-        "Employed Agile methods for on-time, within-budget delivery while maintaining clear client communication to meet and exceed expectations.",
+        "Assembled and managed a team composed of a graphic designer and an editor to ensure high-quality outputs and client satisfaction",
+        "Implemented Agile methodologies to release features incrementally, enabling regular client feedback and prompt adjustments to meet evolving needs",
+        "Transformed a legacy website into a modern, user-friendly platform using contemporary web development frameworks, enhancing user experience and functionality",
+        "Liaised directly with clients to understand their needs and expectations, ensuring delivered solutions were in line with their business objectives",
       ],
     },
   ];
 
   return (
     <div className={styles.container}>
-      <h1>Bannon Tanner</h1>
+      <div className={styles.heading}>
+        <h1>Bannon Tanner</h1>
+        <a href="/resume.pdf">Download</a>
+      </div>
       <div className={styles.contact}>
         <ul>
           {Object.keys(contact).map((key) => (

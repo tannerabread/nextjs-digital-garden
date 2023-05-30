@@ -4,6 +4,13 @@
   border: 1px solid #D8D8D8;
 }
 
+.heading {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .center {
   text-align: center;
 }
