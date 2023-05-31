@@ -6,7 +6,7 @@ import { Providers } from "./providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Next.js Digital Garden",
+  title: "Bannon's Digital Garden",
   description: "Digital Garden built with Next.js",
 };
 

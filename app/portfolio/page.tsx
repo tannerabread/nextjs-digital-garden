@@ -17,7 +17,15 @@ export default async function Portfolio() {
 
   return (
     <div>
-      <h1>Portfolio</h1>
+      <h1>GitHub Stats</h1>
+      <div className="inline-container">
+        <Link href="https://github.com/tannerabread?tab=followers">
+          Followers: {followers}
+        </Link>
+        <Link href="https://github.com/tannerabread?tab=following">
+          Following: {following}
+        </Link>
+      </div>
       <h2>Recently Updated GitHub Repositories</h2>
       <ul>
         {repos.map((repo) => (

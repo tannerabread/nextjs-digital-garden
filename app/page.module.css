@@ -3,8 +3,8 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: 6rem;
-  min-height: 100vh;
+  padding: 3rem;
+  flex-grow: 1;
 }
 
 .description {
@@ -111,11 +111,12 @@
 @media (hover: hover) and (pointer: fine) {
   .card:hover {
     background: rgba(var(--card-rgb), 0.1);
-    border: 1px solid rgba(var(--card-border-rgb), 0.15);
+    border: 1px solid #f286c4;
+    /* border: 1px solid rgba(var(--card-border-rgb), 0.15); */
   }
 
   .card:hover span {
-    transform: translateX(4px);
+    transform: translateX(8px);
   }
 }
 
@@ -211,11 +212,11 @@
 
 @media (prefers-color-scheme: dark) {
   .vercelLogo {
-    filter: invert(1);
+    /* filter: invert(1); */
   }
 
   .logo {
-    filter: invert(1) drop-shadow(0 0 0.3rem #ffffff70);
+    filter: drop-shadow(0 0 0.3rem #ffffff70);
   }
 }
 
