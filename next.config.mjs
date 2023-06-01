@@ -7,6 +7,10 @@ const nextConfig = {
   experimental: {
     appDir: true,
   },
+  images: {
+    dangerouslyAllowSVG: true,
+    domains: ["img.buymeacoffee.com"],
+  }
 };
 
 // rehypePrettyCode options

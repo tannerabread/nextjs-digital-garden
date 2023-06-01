@@ -1,5 +1,5 @@
 import Link from "next/link";
-import styles from './navigation.module.css';
+import styles from "./navigation.module.css";
 import LoginBtn from "./login-btn";
 
 export default function Navbar() {

@@ -22,3 +22,63 @@
   margin-top: 3px;
   font-size: 12px;
 }
+
+.btn {
+  position: relative;
+  display: inline-block;
+  padding: 5px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  border: 1px solid;
+  border-radius: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  color: #c9d1d9;
+  background-color: #21262d;
+  border-color: rgba(240, 246, 252, 0.1);
+  box-shadow: 0 0 transparent, 0 0 transparent;
+  transition: 80ms cubic-bezier(0.33, 1, 0.68, 1);
+  transition-property: color, background-color, box-shadow, border-color;
+}
+
+.btn-sm {
+  padding: 3px 12px;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.icon-sponsor {
+  overflow: visible !important;
+  transition: transform 0.15s cubic-bezier(0.2, 0, 0.13, 2);
+  transform: scale(1);
+}
+
+.mr-1 {
+  margin-right: 0.25rem !important;
+}
+
+.v-align-middle {
+  vertical-align: middle !important;
+}
+
+.color-fg-sponsors {
+  color: #db61a2 !important;
+}
+
+.octicon {
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+  vertical-align: text-bottom;
+}
+
+.v-align-middle {
+  vertical-align: middle !important;
+}
