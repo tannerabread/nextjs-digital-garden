@@ -1,4 +1,5 @@
 import Link from "next/link";
+import styles from "./portfolio.module.css";
 
 interface ghRepo {
   name: string;
@@ -17,6 +18,14 @@ export default async function Portfolio() {
 
   return (
     <div>
+      <h1>Side Projects on this Site</h1>
+      <ul className={styles.grid}>
+        <li className={styles.card}>
+          <Link href="/examples/dynamic-url-image">
+            Dynamic URL Image Height/Width Getter
+          </Link>
+        </li>
+      </ul>
       <h1>GitHub Stats</h1>
       <div className="inline-container">
         <Link href="https://github.com/tannerabread?tab=followers">
@@ -37,20 +46,22 @@ export default async function Portfolio() {
         ))}
       </ul>
       <h2>Open Source Contributions</h2>
-      <div>
-        <Link href="https://github.com/issues?q=is%3Aopen+is%3Aissue+author%3Atannerabread+archived%3Afalse+">
-          Created Issues
-        </Link>
-      </div>
-      <div>
-        <Link href="https://github.com/issues?q=is%3Aopen+is%3Aissue+assignee%3Atannerabread+archived%3Afalse+">
-          Assigned Issues
-        </Link>
-      </div>
-      <div>
-        <Link href="https://github.com/issues?q=is%3Aopen+is%3Aissue+mentions%3Atannerabread+archived%3Afalse+">
-          Mentioned Issues
-        </Link>
+      <div className={styles.grid}>
+        <div className={styles.card}>
+          <Link href="https://github.com/issues?q=is%3Aopen+is%3Aissue+author%3Atannerabread+archived%3Afalse+">
+            Created Issues
+          </Link>
+        </div>
+        <div className={styles.card}>
+          <Link href="https://github.com/issues?q=is%3Aopen+is%3Aissue+assignee%3Atannerabread+archived%3Afalse+">
+            Assigned Issues
+          </Link>
+        </div>
+        <div className={styles.card}>
+          <Link href="https://github.com/issues?q=is%3Aopen+is%3Aissue+mentions%3Atannerabread+archived%3Afalse+">
+            Mentioned Issues
+          </Link>
+        </div>
       </div>
     </div>
   );
