@@ -10,8 +10,23 @@ const nextConfig = {
   images: {
     dangerouslyAllowSVG: true,
     domains: ["img.buymeacoffee.com"],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        port: '',
+        pathname: '/u/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+        port: '',
+        pathname: '/photos/**',
+      }
+    ],
   }
 };
+
 
 // rehypePrettyCode options
 const options = {

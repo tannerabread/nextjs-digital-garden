@@ -1,0 +1,137 @@
+export const meta = {
+  title:
+    "Dynamically Displaying Image Height in Next.js with Image Optimization",
+  date: "2023-06-01T12:51:00-05:00",
+  author: "Bannon Tanner",
+};
+
+## Introduction:
+
+In this blog post, we will explore how to dynamically display the height of an image using Next.js and its built-in image optimization feature. We'll start with the original problem statement and provide a step-by-step solution, incorporating improvements and best practices along the way. Additionally, we'll touch upon the necessary update to the next.config.mjs file to enable proper image handling. Let's dive in!
+
+## Problem Statement:
+
+This blog post is based on a [real-world problem found in the Next.js repository](https://github.com/vercel/next.js/issues/48278) opened by one of the users of the library. 
+
+The challenge presented was to display the height of dynamically loaded images using the Next.js framework. The original code utilized the next/image component, but retrieving the image's height proved to be elusive. The user attempted to use the "probe-image-size" package but that did not work. The goal was to enhance the code by dynamically obtaining and displaying the image's natural width and height.
+
+## Solution:
+
+The solution involved several steps, which we'll discuss in detail:
+
+## Updating the next.config.mjs File:
+
+To ensure proper image handling, we needed to update the next.config.mjs file. The changes will allow users to display avatars from GitHub users and images from [pexels](https://www.pexels.com/). Add the following configuration to the nextConfig object:
+
+```js {10-23}
+// ./next.config.mjs 
+
+const nextConfig = {
+  experimental: {
+    appDir: true,
+  },
+  images: {
+    dangerouslyAllowSVG: true,
+    domains: ["img.buymeacoffee.com"],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        port: '',
+        pathname: '/u/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+        port: '',
+        pathname: '/photos/**',
+      }
+    ],
+  }
+};
+```
+
+These configurations define specific domains for image optimization, and enable the handling of remote images from specified patterns.
+
+## Implementing the Solution:
+
+To create the solution, a new folder/page.tsx was created in the app folder of the project. We wanted to achieve a few things with this component: allow dynamic image upload, display the image that was uploaded, and display the height/width of that image after it was loaded. The component uses a reference to the `HTMLImageElement` to obtain the image's natural [height](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/naturalHeight) and [width](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/naturalWidth). The component also uses the `onLoadingComplete` callback to set the image's height after it has loaded and the `useState` hook to store the image's URL, height, and width. 
+
+The page.tsx file contained the following code:
+
+```js {17,28,51}
+// ./app/examples/dynamic-url-image/page.tsx
+
+"use client";
+
+import Image from "next/image";
+import { useState, useRef } from "react";
+
+function DynamicURLImage(): React.ReactElement {
+  const [imageURL, setImageURL] = useState<string>("");
+  const [imageHeight, setImageHeight] = useState<number | undefined>(undefined);
+  const [naturalWidth, setNaturalWidth] = useState<number | undefined>(
+    undefined
+  );
+  const [naturalHeight, setNaturalHeight] = useState<number | undefined>(
+    undefined
+  );
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  function handleImageURLChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void {
+    setImageURL(event.target.value);
+    setImageHeight(undefined); // Reset the image height when URL changes
+  }
+
+  function handleImageLoad(): void {
+    if (imageRef.current) {
+      const { naturalWidth, naturalHeight } = imageRef.current;
+      setNaturalWidth(naturalWidth);
+      setNaturalHeight(naturalHeight);
+      setImageHeight(naturalHeight);
+    }
+  }
+
+  return (
+    <div>
+      <h1>Dynamic URL Image - Height/Width Getter</h1>
+      <input
+        type="text"
+        value={imageURL}
+        onChange={handleImageURLChange}
+        placeholder="Paste image URL"
+      />
+      {imageURL && (
+        <div>
+          <Image
+            src={imageURL}
+            alt="My Image"
+            width={500}
+            height={imageHeight || 300} // Use a default height until the image loads
+            onLoadingComplete={handleImageLoad}
+            ref={imageRef}
+          />
+          {naturalWidth && naturalHeight && (
+            <p>
+              Natural width: {naturalWidth}px, Natural height: {naturalHeight}px
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default DynamicURLImage;
+
+```
+
+## Conclusion:
+
+In this post we successfully addressed the original problem statement of dynamically displaying image height using Next.js. The code aims to incorporate best practices, including form validation, loading states, and error handling. Additionally, we updated the next.config.mjs file to enable proper image handling. With these enhancements, we achieved a more robust and user-friendly image display solution.
+
+Next.js, with its image optimization feature, provides a powerful and efficient way to handle images in web applications. By leveraging the framework's capabilities and incorporating best practices, we can create engaging and performant user experiences.
+
+Feel free to explore the [current state of the project](https://bannon.cloud/blog) and the [repository](https://github.com/tannerabread/nextjs-digital-garden).
