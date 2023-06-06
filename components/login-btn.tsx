@@ -7,14 +7,17 @@ export default function LoginBtn() {
   if (session) {
     return (
       <>
-        Signed in as {session.user?.name} <br />
-        <button onClick={() => signOut()}>Sign out</button>
+        {/* Add avatar and profile page link */}
+        <button 
+          className="btn btn-primary"
+          onClick={() => signOut()}>
+            Sign out
+        </button>
       </>
     );
   }
   return (
     <>
-      Not signed in <br />
       <button onClick={() => signIn()}>Sign in</button>
     </>
   );

@@ -14,6 +14,20 @@ body {
 	min-height: 100vh;
 }
 
+button {
+  display: inline-block;
+  padding: 0.5em 1em;
+  border: 1px solid #95deee;
+  border-radius: 4px;
+  background-color: transparent;
+  color: #95deee;
+  text-decoration: none;
+  font-size: 16px;
+  line-height: 1.5em;
+  cursor: pointer;
+  transition: background-color 200ms, color 200ms;
+}
+
 .main {
   max-width: 768px;
   margin: 0 auto;
