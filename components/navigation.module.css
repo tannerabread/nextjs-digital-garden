@@ -16,3 +16,9 @@
   color: #f286c4;
   font-weight: bold;
 }
+
+.navbar button:hover {
+  color: #f286c4;
+  font-weight: bold;
+  border: 1px solid #f286c4;
+}
