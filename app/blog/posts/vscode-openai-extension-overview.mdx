@@ -1,0 +1,249 @@
+export const meta = {
+  title: "Building an OpenAI and VSCode Extension with Speech-to-Text Support",
+  date: "2023-06-06T17:07:00-05:00",
+  author: "Bannon Tanner",
+};
+
+In the realm of artificial intelligence (AI) and coding, combining powerful technologies can open up numerous opportunities for creating innovative tools and extensions. This post describes how I embarked on the journey to create a VSCode extension powered by OpenAI, with eventual speech-to-text support. My ultimate goal is for the extension to connect with the editor itself and modify files as needed.
+
+## Getting Started: Yeoman Extension Generator
+
+Starting was as straightforward as it could get, all thanks to the Yeoman Extension Generator. This handy tool simplifies the process of initializing your extension with a ready-to-use template.
+
+Start by installing the Yeoman Extension Generator globally and then running the vscode extension template using the following commands:
+
+```sh
+npm i -g generator-code
+yo code
+```
+
+And then answering the prompts as follows:
+
+```sh
+     _-----_     ╭──────────────────────────╮
+    |       |    │   Welcome to the Visual  │
+    |--(o)--|    │   Studio Code Extension  │
+   `---------´   │        generator!        │
+    ( _´U`_ )    ╰──────────────────────────╯
+    /___A___\   /
+     |  ~  |
+   __'.___.'__
+ ´   `  |° ´ Y `
+
+? What type of extension do you want to create? New Extension (TypeScript)
+? What's the name of your extension? automation
+? What's the identifier of your extension? automation
+? What's the description of your extension?
+? Initialize a git repository? Yes
+? Bundle the source code with webpack? No
+? Which package manager to use? npm
+```
+
+## Adding the OpenAI Dependency
+
+Once the initial extension setup is complete, install the OpenAI dependency using the Node Package Manager (NPM) command:
+
+```sh
+npm install openai
+```
+
+The OpenAI API offers a vast set of capabilities to bring AI functionalities to your applications or services.
+
+Following this, a new "contributes.commands" entry was added to the extension's `package.json` file. This addition created a new function/command for the VSCode extension called `handleUserInput` that will be accessible from the command pallette using the title "Handle User Input":
+
+```json {9-12}
+"activationEvents": [],
+"main": "./out/extension.js",
+"contributes": {
+  "commands": [
+    {
+      "command": "automation.openWebview",
+      "title": "Open Webview"
+    },
+    {
+      "command": "automation.handleUserInput",
+      "title": "Handle User Input"
+    }
+  ]
+},
+```
+
+## Working with Environment Variables
+
+For accessing the OpenAI API, an API key is required. To keep this sensitive information secure, it was stored in an environment variable (in `.env`). VSCode extensions do not allow access to environment files/variables by default, so a key must be added to the launch.json configurations for "Run Extension". Here is the launch configuration for the extension:
+
+```json {13}
+"configurations": [
+  {
+    "name": "Run Extension",
+    "type": "extensionHost",
+    "request": "launch",
+    "args": [
+      "--extensionDevelopmentPath=${workspaceFolder}"
+    ],
+    "outFiles": [
+      "${workspaceFolder}/out/**/*.js"
+    ],
+    "preLaunchTask": "${defaultBuildTask}",
+    "envFile": "${workspaceFolder}/.env",
+  },
+```
+
+## Integrating OpenAI API
+
+With the OpenAI dependency added and the API key set up, the functionality to communicate with the OpenAI API was added by importing the OpenAI module and setting up its configuration with the API key:
+
+```typescript
+// src/extension.ts
+
+import * as vscode from "vscode";
+import * as openai from "openai";
+
+const configuration = new openai.Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openaiAPI = new openai.OpenAIApi(configuration);
+
+// ...
+```
+
+Next, the function callOpenAIAPI was defined to make a request to the OpenAI API's [createChatCompletion method](https://platform.openai.com/docs/api-reference/chat/create). This function took the user's input from the command pallette, made an API request, and handled the response. The chat history is also stored in the `conversation` variable to keep track of the conversation between the user and the AI. Lastly, a function `addMessageToConversation` was created to add the user's input and the AI's response to the conversation history:
+
+```typescript
+// src/extension.ts
+
+// ...
+
+type Message = {
+  role: "system" | "user" | "assistant";
+  content: string;
+};
+
+let conversation: Message[] = [];
+
+async function callOpenAIAPI(userInput: string): Promise<string> {
+  try {
+    const requestPayload = {
+      max_tokens: 50,
+    };
+    const userMessage: Message = { role: "user", content: userInput };
+    addMessageToConversation(userMessage);
+
+    const completion = await openaiAPI.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: conversation,
+      ...requestPayload,
+    });
+
+    // Extract and return the generated message from the API response
+    const response = completion.data.choices[0].message?.content;
+    if (response && typeof response === "string" && response.length > 0) {
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: response,
+      };
+      addMessageToConversation(assistantMessage);
+      return response;
+    } else {
+      throw new Error("Unexpected or empty response from OpenAI API");
+    }
+  } catch (error) {
+    console.error("Error in OpenAI API call:", error);
+    throw error;
+  }
+}
+
+function addMessageToConversation(message: Message) {
+  conversation.push(message);
+}
+
+// ...
+```
+
+## Implementing the User Input Command Handler
+
+Now the handleUserInputCommand function can be created, which displays an input box for the user to enter their input, which then calls the callOpenAIAPI function:
+
+```typescript
+// src/extension.ts
+
+// ...
+
+async function handleUserInputCommand() {
+  const userInput = await vscode.window.showInputBox({
+    prompt: "Enter your input",
+  });
+  if (userInput) {
+    try {
+      const apiResponse = await callOpenAIAPI(userInput);
+      console.log(apiResponse);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+// ...
+```
+
+## Subscribing to the Command
+
+Lastly, the context subscription was added to the activate function. This action allowed the command to be registered and accessible from the command palette. The subscriptions were also added to the deactivate function to ensure that the extension is cleaned up when it is deactivated and subscriptions are disposed of:
+
+```typescript {5, 24-33, 37-40}
+// src/extension.ts
+
+// ...
+
+let subscriptions: vscode.Disposable[] = [];
+
+export function activate(context: vscode.ExtensionContext) {
+  console.log('Congratulations, your extension "automation" is now active!');
+
+  let disposable = vscode.commands.registerCommand(
+    "automation.openWebview",
+    () => {
+      const panel = vscode.window.createWebviewPanel(
+        "automationWebview",
+        "Automation Webview",
+        vscode.ViewColumn.One,
+        {}
+      );
+
+      panel.webview.html = "<h1>Hello Webview</h1>";
+    }
+  );
+
+  subscriptions.push(disposable);
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "automation.handleUserInput",
+      handleUserInputCommand
+    )
+  );
+
+  context.subscriptions.push(...subscriptions);
+}
+
+export function deactivate() {
+  for (const subscription of subscriptions) {
+    subscription.dispose();
+  }
+  subscriptions = [];
+}
+```
+
+## Running the Extension
+
+To run the extension, press F5 on the keyboard to launch the extension in debug mode. This action will open a new VSCode window with the extension installed. To test the extension, open the command palette (Ctrl+Shift+P on Windows/Linux or Cmd+Shift+P on Mac) and search for "Handle User Input". Select the command, and a prompt will appear for the user to enter their input. After entering the input, the AI assistant will respond with a message in the debug console of the original VSCode window.
+
+## Conclusion - Looking Ahead to Future Improvements
+
+Currently, the user interface is far from ideal. It simply returns the assistant's responses to the debug console when running the extension locally, which may not provide the most user-friendly experience.
+
+But the beauty of software development lies in its iterative nature, and there are plans for substantial improvements. One enhancement will introduce a chat window in the extension sidebar, which will offer a more interactive and user-friendly experience. This adjustment will allow users to conveniently see both their queries and the AI assistant's responses in one place, making the process smoother and more intuitive.
+
+Future updates will continue refining the overall user experience and functionality, including adding speech-to-text support and enabling the extension to interact with and modify files in the editor. As the project moves forward, these features will greatly enhance the productivity of developers by providing intelligent, real-time assistance directly within their coding environment.
+
+Check out this project on [GitHub](https://github.com/tannerabread/openai-extension).

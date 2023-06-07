@@ -11,7 +11,7 @@ body {
   font-size: 16px;
   background-color: #222;
   color: #aaa;
-	min-height: 100vh;
+  min-height: 100vh;
 }
 
 button {
@@ -42,9 +42,9 @@ button {
 }
 
 .inline-container {
-	display: flex;
-	justify-content: space-around;
-	align-items: center;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
 }
 
 .simple-print {
@@ -122,15 +122,22 @@ pre {
   padding: 10px;
 }
 
+@media (max-width: 768px) {
+  pre {
+    line-height: 1.2em;
+    font-size: 14px;
+  }
+}
+
 pre > code {
-	display: grid;
+  display: grid;
 }
 
 .highlighted {
-	background-color: rgba(200,200,255,.1);
-	border-left-color: #60a5fa;
-	border-left-width: 3px;
-	border-left-style: solid;
+  background-color: rgba(200, 200, 255, 0.1);
+  border-left-color: #60a5fa;
+  border-left-width: 3px;
+  border-left-style: solid;
 }
 
 code {
