@@ -1,0 +1,352 @@
+export const meta = {
+  title:
+    "Evolving the OpenAI VSCode Extension: Implementing the Interactive Conversation Panel",
+  date: "2023-06-12T14:38:23-05:00",
+  author: "Bannon Tanner",
+};
+
+In this next step of developing the OpenAI VSCode extension, the objective is to refine the interface to allow users to follow the conversation history as it happens. This feature will help users track the interactive dialogues with the AI assistant.
+
+## Refactoring Code: Conversation and OpenAI API Logic
+
+Given the magnitude of the added logic, it's crucial first to organize the existing code. The conversation/OpenAI API logic was shifted to a new file, conversation.ts. This new file now handles configuring the OpenAI API, setting an initial message from the "system" to kickstart the interaction, and the logic for adding messages to the conversation.
+
+```typescript
+// src/conversation.ts
+
+import * as openai from "openai";
+
+type Message = {
+  role: "system" | "user" | "assistant";
+  content: string;
+};
+
+const configuration = new openai.Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openaiAPI = new openai.OpenAIApi(configuration);
+
+export const conversation: Message[] = [
+  {
+    role: "system",
+    content: "Hello, I am the assistant. How can I help you?",
+  },
+];
+
+export async function addMessage(userInput: string): Promise<string> {
+  try {
+    const requestPayload = {
+      model: "gpt-3.5-turbo",
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      max_tokens: 500,
+    };
+    const userMessage: Message = { role: "user", content: userInput };
+    conversation.push(userMessage);
+
+    const completion = await openaiAPI.createChatCompletion({
+      messages: conversation,
+      ...requestPayload,
+    });
+
+    const response = completion.data.choices[0].message?.content;
+    if (response && typeof response === "string" && response.length > 0) {
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: response,
+      };
+      conversation.push(assistantMessage);
+      return response;
+    } else {
+      throw new Error("Unexpected or empty response from OpenAI API");
+    }
+  } catch (error) {
+    console.error("Error in OpenAI API call:", error);
+    throw error;
+  }
+}
+
+```
+
+Almost everything was moved out of the extension.ts file, leaving behind only the activate/deactivate functions. These functions now utilize the openWebview functionality, specifically in the activate function, to listen for the message "handleUserInput." This message is dispatched by the command palette command "handleUserInput."
+
+```typescript
+// src/extension.ts
+
+import * as vscode from "vscode";
+
+import { addMessage } from "./conversation";
+import { handleUserInputCommand } from "./webview";
+
+export let panel: vscode.WebviewPanel | undefined;
+export const subscriptions: vscode.Disposable[] = [];
+
+export function activate(context: vscode.ExtensionContext) {
+  console.log('Congratulations, your extension "automation" is now active!');
+
+  let disposable = vscode.commands.registerCommand(
+    "automation.openWebview",
+    () => {
+      if (!panel) {
+        panel = vscode.window.createWebviewPanel(
+          "automationWebview",
+          "Automation Webview",
+          vscode.ViewColumn.Two,
+          {}
+        );
+
+        panel.onDidDispose(() => {
+          panel = undefined;
+        });
+      }
+
+      panel.webview.onDidReceiveMessage(async (message) => {
+        if (message.command === "handleUserInput") {
+          try {
+            const apiResponse = await addMessage(message.userInput);
+            panel?.webview.postMessage({
+              command: "handleAssistantResponse",
+              assistantResponse: apiResponse,
+            });
+          } catch (error) {
+            console.error(error);
+          }
+        }
+      });
+    }
+  );
+
+  subscriptions.push(disposable);
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "automation.handleUserInput",
+      handleUserInputCommand
+    )
+  );
+
+  context.subscriptions.push(...subscriptions);
+}
+
+export function deactivate() {
+  for (const subscription of subscriptions) {
+    subscription.dispose();
+  }
+  subscriptions.length = 0;
+}
+
+```
+
+## Introducing Webview Functionality
+
+The next piece of the puzzle involves setting up a webview.ts file. This file houses all the functionality related to the webview, such as updating the webview when the conversation changes, getting the webview content (which returns HTML), and providing some simple styling for the webview. Additionally, the webview.ts file also contains the handleUserInputCommand code that is invoked when the command palette "handleUserInput" command is entered.
+
+```typescript
+// src/webview.ts
+
+import * as vscode from "vscode";
+
+import { panel } from "./extension";
+import { conversation, addMessage } from "./conversation";
+
+export function updateWebviewContent() {
+  if (panel) {
+    panel.webview.html = getWebviewContent();
+  }
+}
+
+export function getWebviewContent(): string {
+  const messages = conversation
+    .map(
+      (message) =>
+        `<div class="message ${message.role}">${message.content}</div>`
+    )
+    .join("");
+
+  const htmlcontent = `
+    <html>
+      <head>
+        <style>
+        .conversation {
+          padding: 10px;
+        }
+
+        .message {
+          margin-bottom: 10px;
+        }
+        
+        .system {
+          font-weight: bold;
+        }
+        
+        .user {
+          color: yellow;
+        }
+        
+        .assistant {
+          color: green;
+        }
+        </style>
+      </head>
+      <body>
+        <div class="conversation">
+          ${messages}
+        </div>
+      </body>
+    </html>
+  `;
+
+  return htmlcontent;
+}
+
+export async function handleUserInputCommand() {
+  const userInput = await vscode.window.showInputBox({
+    prompt: "Enter your input",
+  });
+  if (userInput) {
+    try {
+      const apiResponse = await addMessage(userInput);
+      console.log(apiResponse);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+```
+
+## Updating Conversation and Extension Logic
+
+With the new files in place, it's time to go back and update the conversation.ts file and extension.ts file. The updateWebviewContent() function is used after the user enters a message and after the API returns a response.
+
+```typescript {5, 33, 47}
+// src/conversation.ts
+
+import * as openai from "openai";
+
+import { updateWebviewContent } from "./webview";
+
+type Message = {
+  role: "system" | "user" | "assistant";
+  content: string;
+};
+
+const configuration = new openai.Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openaiAPI = new openai.OpenAIApi(configuration);
+
+export const conversation: Message[] = [
+  {
+    role: "system",
+    content: "Hello, I am the assistant. How can I help you?",
+  },
+];
+
+export async function addMessage(userInput: string): Promise<string> {
+  try {
+    const requestPayload = {
+      model: "gpt-3.5-turbo",
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      max_tokens: 500,
+    };
+    const userMessage: Message = { role: "user", content: userInput };
+    conversation.push(userMessage);
+    updateWebviewContent();
+
+    const completion = await openaiAPI.createChatCompletion({
+      messages: conversation,
+      ...requestPayload,
+    });
+
+    const response = completion.data.choices[0].message?.content;
+    if (response && typeof response === "string" && response.length > 0) {
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: response,
+      };
+      conversation.push(assistantMessage);
+      updateWebviewContent();
+      return response;
+    } else {
+      throw new Error("Unexpected or empty response from OpenAI API");
+    }
+  } catch (error) {
+    console.error("Error in OpenAI API call:", error);
+    throw error;
+  }
+}
+
+```
+
+This function is also added to the activate function for the webview, ensuring the initial system message in the conversation is loaded when the extension is launched.
+
+```typescript {3, 21}
+// src/extension.ts
+
+import { updateWebviewContent, handleUserInputCommand } from "./webview";
+
+// ...
+
+      panel.webview.onDidReceiveMessage(async (message) => {
+        if (message.command === "handleUserInput") {
+          try {
+            const apiResponse = await addMessage(message.userInput);
+            panel?.webview.postMessage({
+              command: "handleAssistantResponse",
+              assistantResponse: apiResponse,
+            });
+          } catch (error) {
+            console.error(error);
+          }
+        }
+      });
+
+      updateWebviewContent();
+
+// ...
+
+```
+
+## Updating to Markdown
+
+This update marks a significant leap from merely returning the messages in the debug console. However, there is still a considerable distance to cover. Currently, the responses are simply strings rendered in `<div>` tags in HTML, which doesn't display in a way that is easy to read. Aspects such as newlines or code blocks do not render correctly, resulting in everything appearing as one long string from the response.
+
+Some of this can be fixed by adding `markdown-it` to the project and using it to render the responses as markdown. This change allows for newlines and code blocks to render correctly. 
+
+```typescript {4, 9, 21-23}
+// src/webview.ts
+
+import * as vscode from "vscode";
+import * as md from "markdown-it";
+
+import { panel } from "./extension";
+import { conversation, addMessage } from "./conversation";
+
+const markdownParser = md();
+
+export function updateWebviewContent() {
+  if (panel) {
+    panel.webview.html = getWebviewContent();
+  }
+}
+
+export function getWebviewContent(): string {
+  const messages = conversation
+    .map(
+      (message) =>
+        `<div class="message ${message.role}">${markdownParser.render(
+          message.content
+        )}</div>`
+    )
+    .join("");
+
+// ...
+
+}
+```
+
+## Reflecting on the Progress and Looking Ahead
+
+The user experience has room for improvement. Currently, users must open the command palette every time and call "handleUserInput" to interact with the bot, which is not very user-friendly. Future development will aim to streamline this process, making the OpenAI assistant more accessible and easier to use.
+
+Despite these challenges, the progress so far has been significant, and each step brings the project closer to the goal of creating a more dynamic, feature-rich, and interactive AI-powered VSCode extension. Stay tuned for further updates and improvements on this exciting development journey.

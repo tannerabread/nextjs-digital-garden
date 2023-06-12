@@ -120,6 +120,7 @@ li {
 pre {
   overflow-x: scroll;
   padding: 10px;
+  line-height: 1.6em;
 }
 
 @media (max-width: 768px) {
