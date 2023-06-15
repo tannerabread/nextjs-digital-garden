@@ -126,7 +126,7 @@ pre {
 @media (max-width: 768px) {
   pre {
     line-height: 1.2em;
-    font-size: 12px;
+    font-size: 0.7em;
   }
 }
 
