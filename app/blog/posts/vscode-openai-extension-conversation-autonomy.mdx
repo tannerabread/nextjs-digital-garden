@@ -1,0 +1,595 @@
+export const meta = {
+  title:
+    "Empowering the OpenAI VSCode Extension: Enabling Project-Wide Optimizations and Anticipating Architectural Decisions",
+  date: "2023-06-14T20:20:23-05:00",
+  author: "Bannon Tanner",
+};
+
+In this exciting chapter of the OpenAI VSCode extension development saga, a slew of transformative changes has been introduced. After these enhancements, the extension is now able to read all local files and send them to the OpenAI API. This allows the project to self-optimize, removing the need for laborious copy-pasting of content.
+
+In the near future, an update will ensure the extension is aware of the project's folder structure, allowing it to make informed architectural decisions. All these advancements contribute to making the tool increasingly autonomous and intelligent.
+
+## Enabling File Operations with OpenAI API Responses
+
+The creation of a new file, editor-util.ts, has paved the way for the extension to perform various file operations, including creating, reading, updating, and writing files based on responses from the OpenAI API. These features enable the extension to interact more dynamically with the editor's files.
+
+```typescript
+// src/editor-util.ts
+
+import * as vscode from "vscode";
+
+import { getCodeBlock, getFunction } from "./conversation";
+
+export async function createAndOpenNewTextDocument(): Promise<void> {
+  const fileName = await vscode.window.showInputBox({
+    prompt: "Enter the file name",
+  });
+
+  if (fileName) {
+    const uri = getUri(fileName);
+    try {
+      await vscode.workspace.fs.writeFile(uri, new Uint8Array());
+      const doc = await vscode.workspace.openTextDocument(uri);
+      await vscode.window.showTextDocument(doc);
+    } catch (error) {
+      console.error("Error creating new file:", error);
+    }
+  }
+}
+
+function getUri(fileName: string): vscode.Uri {
+  const folders = vscode.workspace.workspaceFolders;
+  const path = folders ? folders[0].uri.path : undefined;
+  return vscode.Uri.file(`${path}/${fileName}`);
+}
+
+export async function readFile(): Promise<void> {
+  const text = getActiveEditor()?.document?.getText();
+  console.log(text);
+}
+
+export async function writeFile(): Promise<void> {
+  const content = getCodeBlock();
+  const editor = getActiveEditor();
+  if (editor) {
+    const document = editor.document;
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(
+      document.uri,
+      new vscode.Range(0, 0, document.lineCount, 0),
+      content
+    );
+    await vscode.workspace.applyEdit(edit);
+  }
+}
+
+export async function updateFile() {
+  const activeTextEditor: vscode.TextEditor | undefined =
+    vscode.window.activeTextEditor;
+
+  try {
+    const content: string = getFunction();
+
+    if (!activeTextEditor) {
+      return;
+    }
+
+    const { document } = activeTextEditor;
+    const functionName: string = content.match(
+      /function\s+([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/
+    )![1];
+
+    let edit = new vscode.WorkspaceEdit();
+
+    for (let line = 0; line < document.lineCount; line++) {
+      const lineText = document.lineAt(line);
+      let regex = new RegExp("function\\s+" + functionName + "\\s*\\(", "g");
+
+      if (lineText.text.match(regex)) {
+        const start = new vscode.Position(line, 0);
+        let endLine = line;
+        let bracketCounter = 0;
+
+        do {
+          let lineText = document.lineAt(endLine).text;
+          bracketCounter += (lineText.match(/{/g) || []).length;
+          bracketCounter -= (lineText.match(/}/g) || []).length;
+          endLine++;
+        } while (bracketCounter > 0 && endLine < document.lineCount);
+
+        const end = new vscode.Position(
+          endLine,
+          document.lineAt(endLine).text.length
+        );
+
+        edit.replace(
+          document.uri,
+          new vscode.Range(start, end),
+          content + "\n"
+        );
+      }
+    }
+
+    await vscode.workspace.applyEdit(edit);
+
+    if (activeTextEditor) {
+      vscode.commands.executeCommand("editor.action.formatDocument");
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function getActiveEditor(): vscode.TextEditor | undefined {
+  return vscode.window.activeTextEditor;
+}
+```
+
+## Refactoring Code for Improved Readability and Maintainability
+
+As the project expanded, so did the size of the code files. To ensure maintainability and readability, the conversation.ts file was split into conversation.ts, context.ts, and openai.ts, each addressing specific concerns.
+
+```typescript
+// src/openai.ts
+
+import * as openai from "openai";
+
+const configuration = new openai.Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+const openaiAPI = new openai.OpenAIApi(configuration);
+
+export async function getAssistance(prompt: any): Promise<string> {
+  const completion = await openaiAPI.createChatCompletion(prompt);
+  const response = completion.data.choices[0].message?.content;
+  if (response && typeof response === "string" && response.length > 0) {
+    return response;
+  } else {
+    throw new Error("Unexpected or empty response from OpenAI API");
+  }
+}
+```
+
+## Integrating Project Context into API Calls
+
+By introducing a projectContext Message array, the extension can gather files and their contents from an open project. The function navigates recursively through the directory structure, ensuring that files from all subfolders are included, thereby providing a comprehensive view of the project to the OpenAI API.
+
+```typescript
+// src/context.ts
+
+import * as vscode from "vscode";
+import { TextDecoder } from "util";
+
+import { Message, extractFilenames, USER_ROLE } from "./conversation";
+
+export const projectContext: Message[] = [];
+
+export async function updateContext(): Promise<void> {
+  const files = await getFiles();
+  projectContext.length = 0;
+  projectContext.push(
+    ...files.map((content) => ({
+      role: USER_ROLE,
+      content,
+    } as Message))
+  );
+}
+
+export function getRelevantContext(userInput: string): Message[] {
+  const filenames = extractFilenames(userInput);
+
+  const relevantContext = projectContext.filter((message) =>
+    filenames.some((filename) => message.content.includes(filename))
+  );
+  return relevantContext.length > 0 ? relevantContext : projectContext;
+}
+
+async function getFiles(): Promise<string[]> {
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+
+  if (workspaceFolder) {
+    const files = await getFilesInDirectory(workspaceFolder.uri);
+    const fileContentsPromise = await Promise.all(
+      files.map(async (file) => {
+        const content = await readFileContent(file);
+        return `filename: ${file.path} \n ${content}`;
+      })
+    );
+    return fileContentsPromise;
+  }
+  return [];
+}
+
+async function getFilesInDirectory(dir: vscode.Uri): Promise<vscode.Uri[]> {
+  const entries = await vscode.workspace.fs.readDirectory(dir);
+  const files: vscode.Uri[] = entries
+    .filter(([name, type]) => type === vscode.FileType.File)
+    .map(([name]) => vscode.Uri.joinPath(dir, name));
+  const directories = entries.filter(
+    ([name, type]) => type === vscode.FileType.Directory
+  );
+
+  for (const [name] of directories) {
+    const subdir = vscode.Uri.joinPath(dir, name);
+    const subdirFiles = await getFilesInDirectory(subdir);
+    files.push(...subdirFiles);
+  }
+
+  return files;
+}
+
+async function readFileContent(file: vscode.Uri): Promise<string> {
+  const fileUint8Array = await vscode.workspace.fs.readFile(file);
+  return new TextDecoder().decode(fileUint8Array);
+}
+
+```
+
+## Enhancing User Interface for Increased Usability
+
+Several significant improvements to the webview user interface have been implemented. Users can now send input directly from the input field in the webview. Additional updates to the styling and the introduction of CSS transitions have created a more visually appealing and user-friendly experience.
+
+```typescript
+// src/webview.ts
+
+import * as vscode from "vscode";
+import * as md from "markdown-it";
+
+import { panel } from "./extension";
+import { conversation, addMessage } from "./conversation";
+
+const markdownParser = md();
+
+export function updateWebviewContent() {
+  if (panel) {
+    panel.webview.html = getWebviewContent();
+    panel.webview.postMessage({ command: "webviewLoaded" });
+  }
+}
+
+export function getWebviewContent(): string {
+  const messages = conversation
+    .map((message) => {
+      let classes = ["message", message.role];
+      const messageClass = classes.join(" ");
+      return `<div class="${messageClass}">${markdownParser.render(
+        message.content
+      )}</div>`;
+    })
+    .join("");
+
+  const htmlcontent = `
+    <html>
+      <head>
+        <style>
+          body {
+            background-color: #121212;
+            color: #d4d4d4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 10px;
+            margin: 10px;
+          }
+
+          .conversation {
+            padding: 10px;
+            overflow: auto;
+            height: 100%;
+          }
+
+          .message {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding: 8px;
+          }
+
+          .message.user {
+            background-color: #4797AE;
+            color: white;
+          }
+
+          .message.assistant {
+            background-color: #212121;
+          }
+
+          .message.system {
+            background-color: #121212;
+            font-weight: bold;
+          }
+
+          @keyframes dots {
+            0%, 20% {
+              color: rgba(255, 255, 255, 0);
+              text-shadow: 0.25em 0 0 rgba(255, 255, 255, 0),
+                0.5em 0 0 rgba(255, 255, 255, 0);
+            }
+            40% {
+              color: #d4d4d4;
+              text-shadow: 0.25em 0 0 #d4d4d4, 0.5em 0 0 rgba(255, 255, 255, 0);
+            }
+            60% {
+              text-shadow: 0.25em 0 0 #d4d4d4, 0.5em 0 0 #d4d4d4;
+            }
+            80%, 100% {
+              text-shadow: 0.25em 0 0 #d4d4d4, 0.5em 0 0 #d4d4d4,
+                0.75em 0 0 #d4d4d4;
+            }
+          }
+
+          button {
+            background-color: #4797AE;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 8px 16px;
+            cursor: pointer;
+          }
+
+          input[type="text"] {
+            padding: 8px;
+            border-radius: 25px;
+            border: 1px solid #4797AE;
+            background-color: #121212;
+            color: #d4d4d4;
+            width: 80%;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="conversation">
+          ${messages}
+        </div>
+        <div>
+          <input type="text" id="user-input" placeholder="Type here" />
+          <button id="send-btn">Send</button>
+        </div>
+        <script>
+          const vscode = acquireVsCodeApi();
+          const sendBtn = document.getElementById("send-btn");
+          const userInput = document.getElementById("user-input");
+          sendBtn.addEventListener('click', () => {
+            const inputString = userInput.value;
+            vscode.postMessage({ command: "webviewInput", inputString });
+          });
+        </script>
+      </body>
+    </html>
+  `;
+
+  return htmlcontent;
+}
+
+export async function handleUserInputCommand(inputString?: string) {
+  const promptInput =
+    inputString ??
+    (await vscode.window.showInputBox({
+      placeHolder: "How can I help you?",
+    })) ??
+    "";
+
+  if (promptInput) {
+    try {
+      const message = await addMessage(promptInput);
+      console.log(message);
+      updateWebviewContent();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+```
+
+The changes to the webview user interface and the introduction of the postMessage command have also required updates to the activate function in the extension.ts file.
+
+```typescript
+// src/extension.ts
+
+import * as vscode from "vscode";
+
+import { addMessage } from "./conversation";
+import { updateWebviewContent, handleUserInputCommand } from "./webview";
+import {
+  createAndOpenNewTextDocument,
+  readFile,
+  writeFile,
+  updateFile,
+} from "./editor-util";
+
+export let panel: vscode.WebviewPanel | undefined;
+export const subscriptions: vscode.Disposable[] = [];
+
+export function activate(context: vscode.ExtensionContext) {
+  console.log('Congratulations, your extension "automation" is now active!');
+
+  let disposable = vscode.commands.registerCommand(
+    "automation.openWebview",
+    () => {
+      if (!panel) {
+        panel = vscode.window.createWebviewPanel(
+          "automationWebview",
+          "Automation Webview",
+          vscode.ViewColumn.Two,
+          {
+            enableScripts: true,
+          }
+        );
+
+        panel.onDidDispose(() => {
+          panel = undefined;
+        });
+      }
+
+      panel.webview.onDidReceiveMessage(async (message) => {
+        switch (message.command) {
+          case "webviewInput":
+            try {
+              const apiResponse = await addMessage(message.inputString);
+              break;
+            } catch (error) {
+              console.error(error);
+            }
+        }
+      });
+
+      updateWebviewContent();
+    }
+  );
+
+  subscriptions.push(disposable);
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "automation.handleUserInput",
+      handleUserInputCommand
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "automation.createNewFile",
+      createAndOpenNewTextDocument
+    )
+  );
+  subscriptions.push(
+    vscode.commands.registerCommand("automation.readFile", readFile)
+  );
+  subscriptions.push(
+    vscode.commands.registerCommand("automation.writeFile", writeFile)
+  );
+  subscriptions.push(
+    vscode.commands.registerCommand("automation.updateFile", updateFile)
+  );
+
+  context.subscriptions.push(...subscriptions);
+}
+
+export function deactivate() {
+  for (const subscription of subscriptions) {
+    subscription.dispose();
+  }
+  subscriptions.length = 0;
+}
+
+```
+
+## Optimizing API Calls for Cost-Efficiency
+
+To manage the cost and efficiency of API calls, the approach to sending the conversation history was revised. If a filename is specified in the prompt, the extension only sends the context of that file or files along with the last message in the conversation before the prompt.
+
+```typescript
+// src/conversation.ts
+
+import { getAssistance } from "./openai";
+import { updateWebviewContent } from "./webview";
+import { getRelevantContext, updateContext } from "./context";
+
+export const SYSTEM_ROLE = "system";
+export const USER_ROLE = "user";
+export const ASSISTANT_ROLE = "assistant";
+
+export type Message = {
+  role: typeof SYSTEM_ROLE | typeof USER_ROLE | typeof ASSISTANT_ROLE;
+  content: string;
+};
+
+export const conversation: Message[] = [
+  {
+    role: SYSTEM_ROLE,
+    content: "Hello, I am the assistant. How can I help you?",
+  },
+];
+
+export async function addMessage(userInput: string): Promise<string> {
+  try {
+    const prompt = await constructPrompt(userInput);
+
+    conversation.push({ role: USER_ROLE, content: userInput });
+    updateWebviewContent();
+
+    const response = await getAssistance(prompt);
+    conversation.push({
+      role: ASSISTANT_ROLE,
+      content: response,
+    });
+    updateWebviewContent();
+
+    return response;
+  } catch (error) {
+    console.error("Error in OpenAI API call:", error);
+    throw error;
+  }
+}
+
+async function constructTempConversation(
+  userInput: string
+): Promise<Message[]> {
+  const relevantContext: Message[] = getRelevantContext(userInput);
+  const tempConversation: Message[] = [
+    conversation[conversation.length - 1],
+    ...relevantContext,
+    { role: USER_ROLE, content: userInput },
+  ];
+  return tempConversation;
+}
+
+async function constructPrompt(userInput: string): Promise<{ messages: Message[], model: string }> {
+  const requestPayload = {
+    model: "gpt-3.5-turbo",
+  };
+
+  await updateContext();
+  const tempConversation = await constructTempConversation(userInput);
+  console.log(tempConversation);
+  return {
+    messages: tempConversation,
+    ...requestPayload,
+  };
+}
+
+export function extractFilenames(message: string): string[] {
+  const fileNameRegex = /[\w-]+\.(ts|js|tsx|jsx|css|json)/g;
+  const matches = message.match(fileNameRegex);
+  return matches ? matches : [];
+}
+
+export function getCodeBlock(): string {
+  const mostRecentMessage = getMostRecentMessage();
+  const codeBlockRegex = /```([^`]+)```/s;
+
+  const match = mostRecentMessage.match(codeBlockRegex);
+  if (match) {
+    return match[1].trim();
+  } else {
+    throw new Error("No code block found");
+  }
+}
+
+export function getFunction(): string {
+  const mostRecentMessage = getMostRecentMessage();
+  const functionRegex = /(function.*\(.*\).*\{(.|\n)*?\n\})/g;
+
+  const match = mostRecentMessage.match(functionRegex);
+  if (match) {
+    return match[0];
+  } else {
+    throw new Error("No function name found");
+  }
+}
+
+function getMostRecentMessage(): string {
+  const mostRecentMessage = conversation[conversation.length - 1];
+  if (mostRecentMessage) {
+    return mostRecentMessage.content;
+  } else {
+    throw new Error("No messages in conversation");
+  }
+}
+
+```
+
+## Conclusion
+
+The OpenAI VSCode extension development journey continues to be an exciting one. This has been one of the most enjoyable projects I have ever built! Each enhancement contributes towards creating a more autonomous, context-aware, and user-friendly tool that promises to revolutionize the developer experience. Stay tuned for more exciting updates!
+
+Check out the [current state of the project](https://github.com/tannerabread/openai-extension).
